@@ -1,0 +1,12 @@
+GET http://www.aip-drones.fr/carte/tiles/oaci/10/528/375.png 
+
+HTTP/1.1
+Host: www.aip-drones.fr
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
+Accept: image/webp,image/*,*/*;q=0.8
+Referer: http://www.aip-drones.fr/carte/aip-drones/
+Accept-Encoding: gzip, deflate, sdch
+Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4
+Cookie: _ga=GA1.2.2022745859.1466512365
+

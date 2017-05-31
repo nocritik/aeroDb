@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Gauge Test</title>
+        <meta http-equiv="Content-Type" content="text/html charset=UTF-8">    
+        <link href="../css/style.css" rel="stylesheet" type="text/css" />
+        <link href="../css/bootstrap/bootstrap.css" rel="stylesheet" type="text/css"/>
+        <link href="../css/bootstrap/bootstrap-theme.css" rel="stylesheet" type="text/css"/>
+        <link href="../css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.css" rel="stylesheet" type="text/css"/>
+        <link href="../css/prism/prism.css" rel="stylesheet" type="text/css"/>    
+        <link href="../css/flightindicators.css" rel="stylesheet" type="text/css"/>
+        <link href="../css/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+
+        <script src="../scripts/jquery-1.12.3.min.js" type="text/javascript"></script>
+        <script src="../scripts/boostrap/bootstrap.min.js" type="text/javascript"></script>    
+        <script src="../css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.js" type="text/javascript"></script>
+
+        <script>var CANV_GAUGE_FONTS_PATH = '../css/fonts'</script>    
+        <script src="../scripts/gauge/components/gauge.js" type="text/javascript"></script>    
+        <script src="../scripts/gauge/components/addGauge.js" type="text/javascript"></script>   
+        <script src="../scripts/gauge/creatGradu.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/speedGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/tempGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/compassGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/tempGaugeL.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/tempGaugeR.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/fuelGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/fuelGaugeL.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/fuelGaugeR.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/components/variometreGauge.js" type="text/javascript"></script>
+
+
+        <script src="../scripts/gauge/saveGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/loaderModifInst.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/saveModifGauge.js" type="text/javascript"></script>
+        
+       
+
+        <style>
+
+            body {
+                background: #696969;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class ="div_menu" id="div_menu">
+            <div class=" div_btn_Menu">
+                <button id="btn_home"><i class="btn_menu fa fa-home fa-3x" ></i></button>
+                <button id="btn_map" ><i class="btn_menu fa fa-map fa-3x" ></i></button> 
+                <!--button id="btn_editNav"><i class="btn_menu fa fa-list fa-3x"></i></button-->
+                <!--button id="btn_seach"><i class="btn_menu fa fa-search-plus fa-3x" ></i></button-->
+                <button id="btn_rec"><i class="btn_menu fa fa-history fa-3x" ></i></button>
+                <!--button id="btn_goBack"><i class="btn_menu fa fa-refresh fa-3x" ></i></button-->
+                <button id="btn_param"><i class="btn_menu fa fa-cogs fa-3x" ></i></button>
+            </div>
+            <i  id= "btn_fleche_menu" class="btn_fleche_menu fa fa-angle-double-left fa-3x" ></i>
+        </div>
+
+        <div class="gauge" ></div> 
+
+        <div class="container-canvas" > 
+            <a class="glyphicon glyphicon-plus-sign grey" data-toggle="modal" data-target="#addInstModal"></a>
+        </div> 
+
+
+
+        <!-- Modal ajout  -->
+        <div class="modal fade" id="addInstModal" tabindex="-1" role="dialog" aria-labelledby="addInstModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="addInstModalLabel">Ajout instrument</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="form-horizontal">
+                                <!-- type instrument--> 
+                                <div class="row">
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="graduation">
+                                        <label for="selectList" class=" control-label col-lg-4 col-md-5 col-sm-5 col-xs-5">Type d'instrument :</label>
+                                        <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5"> 
+                                            <select name="selectList" id="listeInstrument" class="form-control"> 
+                                                <option value="gaugeSpeed1">Vitesse</option> 
+                                                <option value="gaugeTemperature">Temp Simple</option> 
+                                                <option value="gaugeTemperatureR">Temperature droite</option> 
+                                                <option value="gaugeTemperatureL">Temperature gauche</option> 
+                                                <option value="gaugeTemperatureD">Temp Double</option>
+                                                <option value="gaugeCompass">Compas</option>
+                                                <option value="gaugeVariometer">Variometre</option>
+                                                <option value="attitude">Horizon</option>
+                                                <option value="turn_coordinator">Bille</option>
+                                                <option value="heading">Compas 1</option>
+                                                <option value="altimeter">Altimetre 1</option>
+                                                <option value="gaugeFuelD">Fuel double</option>
+                                                <option value="gaugeFuel1">Fuel Simple</option>
+                                                
+                                                
+                                                
+                                            </select> 
+                                        </div> 
+                                    </div>                         
+                                </div>                 
+                                <!-- Unités-->                    
+                                <div class="row">
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="unites">
+                                        <label for="selectList" class="control-label col-lg-4 col-md-5 col-sm-5 col-xs-5">Unité :</label>
+                                        <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5"> 
+                                            <select name="selectList" id="listeUnite" class="form-control"> 
+                                                <option value="Km/h">Km/h</option> 
+                                                <option value="Mph">Mph</option> 
+                                                <option value="C°">C°</option> 
+                                                <option value="F°">F°</option> 
+                                                <option value="M">M</option>
+                                                <option value="Ft">Ft</option>
+                                                <option value="M/s">M/s</option>
+                                                <option value="Ft/Min">Ft/Min</option>                                    
+                                            </select> 
+                                        </div>
+                                    </div>                         
+                                </div> 
+
+                                <!-- Afficheur Position--> 
+                                <div class="row"> 
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="positionAff">
+                                        <label for="selectList" class="col-lg-4 col-md-5 col-sm-5 col-xs-5">Position afficheur :</label> 
+                                        <div class="col-lg-3 col-md-3 col-sm-5 col-xs-5"> 
+                                            <select name="selectList" id="listePosHoriz" class="form-control "> 
+                                                <option value="center">Centre</option>
+                                                <option value="right">Droite</option>                                      
+                                                <option value="left">Gauche</option> 
+                                            </select> 
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-5 col-xs-5">  
+                                            <select name="selectList" id="listePosVert" class="form-control "> 
+                                                <option value="down">bas</option>
+                                                <option value="up">Haut</option> 
+                                                <option value="center">Centre</option> 
+
+                                            </select> 
+                                        </div>  
+                                    </div>                        
+                                </div>   
+                                <!-- graduation-->  
+                                <div class="row">
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="graduation">  
+                                        <label  class="col-lg-3 col-md-5 col-sm-5 col-xs-5">Graduations:</label>
+                                        <div class=" input-group col-lg-9 col-md-5 col-sm-5 col-xs-5">
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">
+                                                <input id="gradMin" type="text" value="0" name="gradMin" class="form-control"> 
+                                            </div>
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">  
+                                                <input id="gradMax" type="text" value="0" name="gradMax" class="form-control">
+                                            </div>
+                                        </div>     
+                                    </div>
+                                </div><!-- /.row -->
+
+                                <!-- arc couleur-->
+                                <div class="row">
+
+                                    <!-- arc couleur 1-->
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="arcJaune">  
+                                        <label  class="col-lg-3 col-md-5 col-sm-5 col-xs-5">Arc jaune :</label>
+                                        <div class=" input-group col-lg-9 col-md-5 col-sm-5 col-xs-5">
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">
+                                                <input id="arcJauneMin" type="text" value="0" name="arcJauneMin" class="form-control"> 
+                                            </div>
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">  
+                                                <input id="arcJauneMax" type="text" value="0" name="arcJauneMax" class="form-control">
+                                            </div>
+                                        </div>     
+                                    </div>
+                                </div><!-- /.row -->
+                                <div class="row">
+                                    <!-- arc couleur 2-->
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="arcVert">  
+                                        <label  class="col-lg-3 col-md-5 col-sm-5 col-xs-5">Arc vert :</label>
+                                        <div class=" input-group col-lg-9 col-md-5 col-sm-5 col-xs-5">
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">
+                                                <input id="arcVertMin" type="text" value="0" name="arcVertMin" class="form-control"> 
+                                            </div>
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">  
+                                                <input id="arcVertMax" type="text" value="0" name="arcVertMax" class="form-control">
+                                            </div>
+                                        </div>     
+                                    </div>
+                                </div><!-- /.row -->
+                                <div class="row">
+                                    <!-- arc couleur 3-->
+                                    <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="arcRouge">  
+                                        <label  class="col-lg-3 col-md-5 col-sm-5 col-xs-5">Arc rouge :</label>
+                                        <div class=" input-group col-lg-9 col-md-5 col-sm-5 col-xs-5">
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">
+                                                <input id="arcRougeMin" type="text" value="0" name="arcRougeMin" class="form-control"> 
+                                            </div>
+                                            <div class="col-lg-6 col-md-5 col-sm-5 col-xs-5">  
+                                                <input id="arcRougeMax" type="text" value="0" name="arcRougeMax" class="form-control">
+                                            </div>
+                                        </div>     
+                                    </div>
+                                </div><!-- /.row -->
+
+
+                            </div>
+                        </div> 
+                        <div class="modal-footer">        
+                            <button type="button" class="pull-left glyphicon glyphicon-floppy-disk btn-lg btnSave" data-info="save" data-dismiss="modal" id="btnSave"></button>
+                            <button type="button" class="glyphicon glyphicon glyphicon-trash btn-lg btnSupprInstr" data-dismiss="modal" id="btnSuppr"></button>
+                            <button type="button" class="glyphicon glyphicon-remove btn-lg" data-dismiss="modal" id="btnCancel"></button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+        <input type="hidden" id="idGauge" value="">
+        
+        
+
+        <script src="../scripts/gauge/loaderGauge.js" type="text/javascript"></script>       
+        <script src="../scripts/gauge/components/jquery.flightindicators.js" type="text/javascript"></script>
+        <script src="../css/prism/prism.js" type="text/javascript"></script>
+        
+        <script src="../scripts/animGauges.js" type="text/javascript"></script>
+        <script src="../scripts/event.js" type="text/javascript"></script>
+    </body>  
+
+
+</html>
