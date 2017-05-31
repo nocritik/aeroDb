@@ -1,0 +1,219 @@
+    /*
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+    */
+    /* 
+        Created on : 6 juin 2016, 16:19:39
+        Author     : dmr
+    */
+    html,body{
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        *position: relative;
+    } 
+
+    /***************************** index css ****************************/
+
+    h1{
+        font-size: 35px;
+        text-align: center;
+        *font-family:Roboto Bold Condensed; 
+    }
+    .div_btn{
+        *margin-left: 35%;
+        *width: 30%;
+        *background-color:  green;
+    }
+
+    button.btn{
+        background-color:  #C0C0C0;
+        width: 100%; 
+
+    }
+
+    .btn_class_hover :hover{
+        background-color: #696969; 
+    }
+
+
+    a.btn{
+        background-color:  #C0C0C0;
+        *text-align: left;
+    }
+
+    .menu{
+        margin-left: 30%;
+
+    }    
+
+    /***************************** nav css ****************************/
+    .data_nav{
+        position: absolute;
+        width: 200px;
+        height: 25%;
+        bottom: 0px;
+        right: 0px;  
+        background: #F5F7FA;
+    }
+
+    .div_container_map{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+    }     
+
+
+    li{
+        list-style-type:none;
+    }
+
+    .map{
+        width: 100%;
+        height: 100%;  
+    }
+
+    /***************************** menu flottant droit ****************************/
+    .btn_menu{
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        color: black;
+    }
+
+    .btn_fleche_menu{
+        position: absolute;
+        transform: rotate(0deg);
+        top: 40%;
+        left: 2px;  
+    } 
+
+    .btn_fleche_menu_rotat{
+        -moz-transform: rotate(180deg);
+        -webkit-transform: rotate(180deg);
+        -o-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
+
+    .div_btn_Menu{
+        position: absolute;             
+        top: 2%;
+        left: 45px; 
+
+    } 
+
+    .div_menu{
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 75%;             
+        background: #a9a9a9;
+        transition: transform 1s ease, background 1s ease; 
+        *-webkit-transition: transform 1s ease, background 1s ease;
+        -moz-transition: transform 1s ease, background 1s ease;
+        -ms-transition: transform 1s ease, background 1s ease;
+        -o-transition: transform 1s ease, background 1s ease;
+        opacity: 0.3;
+        transform: translate(80px);
+        z-index: 3;
+    }
+
+    .div_menu_big {
+        transform: translate(0px);
+        height: 75%;			 
+        opacity: 0.6;
+        z-index: 3;
+
+    }
+    /***************************** *** ****************************/
+
+
+    /* **************************** gauge css **********************/
+    a{
+        text-decoration: none!important;
+    }
+    
+    .vis{
+        width: 20px;
+        height: 20px; 
+        position: absolute;  
+    }
+
+    .vis1{                       
+        top: 20px; 
+        left: 20px;
+    }
+
+    .vis2{                        
+        top: 20px; 
+        left: 260px;
+    }
+
+    .vis3{                       
+        top: 260px; 
+        left: 260px;
+    }
+
+    .vis4{                       
+        top: 260px; 
+        left: 20px;
+    }
+
+    .container-canvas{
+        width: 300px;
+        height: 300px;
+        *overflow: hidden;
+        border-radius:30px;
+        background: black;
+        float: left;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .container-canvas a {
+        font-size: 100px;  /* Preferred icon size */
+        color: #999999;
+        margin-left: 35%;
+        margin-top: 30%
+    }
+
+    .demiContainer-canvasL{
+        width: 150px;
+        height: 300px;
+        overflow: hidden;
+        position: absolute;
+        top: 0px;
+        right: 50%;
+
+    }
+
+    .demiContainer-canvasR{
+        width: 150px;
+        height: 300px;
+        overflow: hidden;
+        position: absolute;
+        top: 0px;
+        right: 0%;
+    }
+    #btnSuppr{
+        display: none;
+    }
+
+    /*.unselectable {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }*/
+
+    .gauge{
+        z-index: 1;
+    }
+
