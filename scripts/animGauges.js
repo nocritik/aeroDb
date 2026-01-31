@@ -53,56 +53,71 @@ function dataVariometerFI() {
 }
 //****************************************** 
 
-
-
  //*******************set data value compass**************
 function dataCompas() {
                var dataCompasGauge = Math.random() * 365;
          return dataCompasGauge;   
         };
- //******************************************  
+ //******************************************
+ 
+
  //*******************set data value speedGauge**************
 function dataSpeed() {
                var dataSpeedGauge = Math.random() * (165 - 120) + 120;
          return dataSpeedGauge;   
         };
  //******************************************  
+
+  //*******************set data value tachimeterGauge**************
+function dataTachimeter() {
+    // Simule des RPM entre 2000 et 7000 (valeurs réalistes pour moteur ULM)
+    var dataTachimeterGauge = Math.random() * (7000 - 2000) + 2000;
+    return Math.round(dataTachimeterGauge);
+};
+ //******************************************  
+
  //*******************set data value tempGauge**************
 function dataTemp() {
-               var dataTempGauge =  (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
-         return dataTempGauge;   
-        };
+    var dataTempGauge =  (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
+    return dataTempGauge;   
+};
  //******************************************  
+
 //*******************set data value tempGaugeL**************
 function dataTempL() {
-               var dataTempGaugeL =  Math.random() * 120;
-         return dataTempGaugeL;   
-        };
+    var dataTempGaugeL =  Math.random() * 120;
+    return dataTempGaugeL;   
+};
  //****************************************** 
+
  //*******************set data value tempGaugeR**************
 function dataTempR() {
                var dataTempGaugeR =   Math.random() * 120;
          return dataTempGaugeR;   
         };
- //******************************************   
+ //******************************************  
+
  //*******************set data value variometreGauge**************
 function dataVario() {
                var dataVariometreGauge = (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
          return dataVariometreGauge;   
         };
  //******************************************   
+
   //*******************set data value tempGaugeR**************
 function dataFuelR() {
                var dataFuelGaugeR =   Math.random() * 120;
          return dataFuelGaugeR;   
         };
  //****************************************** 
+
    //*******************set data value tempGaugeR**************
 function dataFuelL() {
                var dataFuelGaugeL =   Math.random() * 120;
          return dataFuelGaugeL;   
         };
  //****************************************** 
+
     //*******************set data value tempGaugeR**************
 function dataFuel() {
                var dataFuelGauge =   (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;

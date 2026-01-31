@@ -14,6 +14,7 @@ import { variometreGauge } from './variometreGauge.js';
 import { gaugeFuel } from './fuelGauge.js';
 import { fuelGaugeL } from './fuelGaugeL.js';
 import { fuelGaugeR } from './fuelGaugeR.js';
+import { tachimeter } from './tachimeter.js';
 
 export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32) {
 
@@ -58,7 +59,8 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         'gaugeFuel1': gaugeFuel1,
         'gaugeFuelL': gaugeFuelL,
         'gaugeFuelR': gaugeFuelR,
-        'gaugeFuelD': gaugeFuelD
+        'gaugeFuelD': gaugeFuelD,
+        'gaugeTachimeter': gaugeTachimeter
     };
 
     var gaugeFunction = gaugeFunctions[gaugeType];
@@ -242,6 +244,10 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         $("#canvas1_" + gaugeId).attr("id", "gaugeFuelR_" + gaugeId);
         fuelGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
         fuelGaugeR("gaugeFuelR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeTachimeter(){
+        var canvasId = createCanvas(gaugeType);
+        tachimeter(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
     
 //    switch (gaugeType) {
