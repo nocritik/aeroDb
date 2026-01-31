@@ -1,40 +1,57 @@
+/*
+ * Animation des instruments de vol et jauges
+ * Les indicateurs créés dynamiquement utilisent les fonctions data* ci-dessous
+ */
 
+//***************************************************************************
+//                    FONCTIONS DATA POUR INDICATEURS DE VOL
+//                    (jQuery Flight Indicators)
+//***************************************************************************
 
-// First static example
-    var first_attitude = $.flightIndicator('#first_attitude', 'attitude', {size: 350, roll: 8, pitch: 3, showBox: true});
-// Dyna// Dynamic examples
-var attitude = $.flightIndicator('#attitude', 'attitude', {roll:50, pitch:-20, size:200, showBox : true});
-var heading = $.flightIndicator('#heading', 'heading', {heading:150, showBox:true});
-var variometer = $.flightIndicator('#variometer', 'variometer', {vario:-5, showBox:true});
-var airspeed = $.flightIndicator('#airspeed', 'airspeed', {showBox: false});
-var altimeter = $.flightIndicator('#altimeter', 'altimeter');
-var turn_coordinator = $.flightIndicator('#turn_coordinator', 'turn_coordinator', {turn:0});
+//*******************set data value attitude (horizon artificiel)**************
+function dataAttitudeRoll() {
+    // Simule un roulis entre -30 et +30 degrés
+    return 30 * Math.sin(Date.now() / 1000);
+}
 
-// Update at 20Hz
-var increment = 0;
-setInterval(function() {
-    // Airspeed update
-    airspeed.setAirSpeed(80+80*Math.sin(increment/10));
+function dataAttitudePitch() {
+    // Simule un tangage entre -20 et +20 degrés
+    return 20 * Math.sin(Date.now() / 2000);
+}
+//******************************************
 
-    // Attitude update
-    attitude.setRoll(30*Math.sin(increment/10));
-    attitude.setPitch(50*Math.sin(increment/20));
+//*******************set data value heading (cap)**************
+function dataHeading() {
+    // Simule un cap qui tourne lentement (0-360)
+    return (Date.now() / 100) % 360;
+}
+//******************************************
 
-    // Altimeter update
-    altimeter.setAltitude(10*increment);
-    altimeter.setPressure(1000+3*Math.sin(increment/50));
-    increment++;
-    
-    // TC update
-    turn_coordinator.setTurn(30*Math.sin(increment/10));
+//*******************set data value altimeter**************
+function dataAltitude() {
+    // Simule une altitude entre 0 et 5000 pieds
+    return 2500 + 2500 * Math.sin(Date.now() / 5000);
+}
 
-    // Heading update
-    heading.setHeading(increment);
-    
-    // Vario update
-    variometer.setVario(2*Math.sin(increment/10));
-    
-}, 100); 
+function dataPressure() {
+    // Simule une pression atmosphérique entre 1000 et 1030 hPa
+    return 1013 + 15 * Math.sin(Date.now() / 10000);
+}
+//******************************************
+
+//*******************set data value turn coordinator (bille)**************
+function dataTurnCoordinator() {
+    // Simule un virage entre -30 et +30 degrés
+    return 30 * Math.sin(Date.now() / 1500);
+}
+//******************************************
+
+//*******************set data value variometer (flight indicator)**************
+function dataVariometerFI() {
+    // Simule un taux de montée/descente entre -2 et +2
+    return 2 * Math.sin(Date.now() / 2000);
+}
+//****************************************** 
 
 
 

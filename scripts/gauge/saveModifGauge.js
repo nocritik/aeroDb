@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+import { addInstrument } from "./components/addGauge.js";
 
 function saveModifGauge(idGauge){
      for(var i in localStorage) {
@@ -53,9 +53,10 @@ function saveModifGauge(idGauge){
     //******************************************************************
     localStorage.setItem(idGauge,MyInst); // enregistrement instrument dans localStorage
    //debugger
-    addInstrument(idGauge,instrument,tabGrad,unit,gradMin,gradMax,affPosVert,affPosHor,arc11,arc12,arc21,arc22,arc31,arc32);//creation du nouvel instrument  
-     
-    
+    addInstrument(idGauge,instrument,tabGrad,unit,gradMin,gradMax,affPosVert,affPosHor,arc11,arc12,arc21,arc22,arc31,arc32);//creation du nouvel instrument
+
+
 };
 
-
+// Exposer la fonction sur window pour qu'elle soit accessible depuis event.js (non-module)
+window.saveModifGauge = saveModifGauge;

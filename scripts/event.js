@@ -69,15 +69,17 @@ $("#btnSave").click(function () {
         default:
             alert("Erreur d'enregistrement !!");
     };
-    $("body").load("../partial/gauge_page.html");
+    // CORRECTION: Utiliser reload() au lieu de $("body").load() pour recharger les modules ES6
+    window.location.reload();
 });
 //****************************************************************
 
 //***********************boutton Save*******************************
 $("#btnSuppr").click(function () {
-    var gaugeId = $("#idGauge").val(); //recupere id de l'element selectionné dans input caché    
+    var gaugeId = $("#idGauge").val(); //recupere id de l'element selectionné dans input caché
     localStorage.removeItem(gaugeId);
-    $("body").load("../partial/gauge_page.html");
+    // CORRECTION: Utiliser reload() au lieu de $("body").load() pour recharger les modules ES6
+    window.location.reload();
 });
 //****************************************************************
 
@@ -112,18 +114,20 @@ $(function () {
         window.location = "gauge_page.html";
     });
 });
-//****************************************************************  
- $(document).ready(function() {
-     var defaultLong = 43.7079321;
-     var defaultLat = 3.864752; 
-   var mymap = initMap(defaultLong,defaultLat);
+//****************************************************************
+// Code spécifique à la page de navigation (initMap n'existe que sur nav_page.html)
+$(document).ready(function() {
+    // Vérifier si initMap existe (seulement sur la page de navigation)
+    if (typeof initMap === 'function') {
+        var defaultLong = 43.7079321;
+        var defaultLat = 3.864752;
+        var mymap = initMap(defaultLong, defaultLat);
 
-//***********************boutton map menu flottant *******************************
-$(function () {
-    $("#btn_search").click(function () {
-         var base_ulm_url = "../data/base_ulm.json";          
-         layerMarkerBase(mymap,base_ulm_url);
-    });
-});
-//****************************************************************  
+        //***********************boutton map menu flottant *******************************
+        $("#btn_search").click(function () {
+            var base_ulm_url = "../data/base_ulm.json";
+            layerMarkerBase(mymap, base_ulm_url);
+        });
+        //****************************************************************
+    }
 });

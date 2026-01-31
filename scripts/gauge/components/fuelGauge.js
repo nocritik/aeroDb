@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//*********************************************************************************************        
-//                          temperature gauge 
 //*********************************************************************************************
- function gaugeFuel(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
-        
+//                          fuel gauge
+//*********************************************************************************************
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function gaugeFuel(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
+
      var gaugeFuel1 = new Gauge({
-            renderTo    : 'gaugeFuel1',
+            renderTo    : canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width       : 300,
             height      : 300,
             glow        : false,

@@ -16,24 +16,26 @@
         <script src="../scripts/boostrap/bootstrap.min.js" type="text/javascript"></script>    
         <script src="../css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.js" type="text/javascript"></script>
 
-        <script>var CANV_GAUGE_FONTS_PATH = '../css/fonts'</script>    
-        <script src="../scripts/gauge/components/gauge.js" type="text/javascript"></script>    
-        <script src="../scripts/gauge/components/addGauge.js" type="text/javascript"></script>   
+        <script>var CANV_GAUGE_FONTS_PATH = '../css/fonts'</script>
+        <script src="../scripts/gauge/components/gauge.js" type="text/javascript"></script>
         <script src="../scripts/gauge/creatGradu.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/speedGauge.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/tempGauge.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/compassGauge.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/tempGaugeL.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/tempGaugeR.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/fuelGauge.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/fuelGaugeL.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/fuelGaugeR.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/components/variometreGauge.js" type="text/javascript"></script>
+        <script src="../scripts/animGauges.js" type="text/javascript"></script>
 
+        <!-- Modules ES6 pour les jauges -->
+        <script src="../scripts/gauge/components/speedGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/compassGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempGaugeL.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempGaugeR.js" type="module"></script>
+        <script src="../scripts/gauge/components/fuelGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/fuelGaugeL.js" type="module"></script>
+        <script src="../scripts/gauge/components/fuelGaugeR.js" type="module"></script>
+        <script src="../scripts/gauge/components/variometreGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/addGauge.js" type="module"></script>
 
-        <script src="../scripts/gauge/saveGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/saveGauge.js" type="module"></script>
         <script src="../scripts/gauge/loaderModifInst.js" type="text/javascript"></script>
-        <script src="../scripts/gauge/saveModifGauge.js" type="text/javascript"></script>
+        <script src="../scripts/gauge/saveModifGauge.js" type="module"></script>
         
        
 
@@ -109,15 +111,17 @@
                                     <div class="form-group col-lg-6 col-md-7 col-sm-9 col-xs-10" id="unites">
                                         <label for="selectList" class="control-label col-lg-4 col-md-5 col-sm-5 col-xs-5">Unité :</label>
                                         <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5"> 
-                                            <select name="selectList" id="listeUnite" class="form-control"> 
-                                                <option value="Km/h">Km/h</option> 
-                                                <option value="Mph">Mph</option> 
-                                                <option value="C°">C°</option> 
-                                                <option value="F°">F°</option> 
+                                            <select name="selectList" id="listeUnite" class="form-control">
+                                                <option value="Km/h">Km/h</option>
+                                                <option value="Mph">Mph</option>
+                                                <option value="C°">C°</option>
+                                                <option value="F°">F°</option>
                                                 <option value="M">M</option>
                                                 <option value="Ft">Ft</option>
                                                 <option value="M/s">M/s</option>
-                                                <option value="Ft/Min">Ft/Min</option>                                    
+                                                <option value="Ft/Min">Ft/Min</option>
+                                                <option value="L">L</option>
+                                                <option value="Gal">Gal</option>
                                             </select> 
                                         </div>
                                     </div>                         
@@ -222,11 +226,10 @@
         
         
 
-        <script src="../scripts/gauge/loaderGauge.js" type="text/javascript"></script>       
+        <script src="../scripts/gauge/loaderGauge.js" type="module"></script>
         <script src="../scripts/gauge/components/jquery.flightindicators.js" type="text/javascript"></script>
         <script src="../css/prism/prism.js" type="text/javascript"></script>
-        
-        <script src="../scripts/animGauges.js" type="text/javascript"></script>
+
         <script src="../scripts/event.js" type="text/javascript"></script>
     </body>  
 

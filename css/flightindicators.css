@@ -50,3 +50,28 @@ div.instrument.altimeter div.needle {
 div.instrument.altimeter div.needleSmall {
   transform: rotate(90deg);
 }
+
+/* Afficheur numérique pour heading - Style identique au valueBox Canvas Gauge (speedGauge) */
+div.instrument.heading .heading-value-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% - 5px));
+  /* Style identique au valueBox de Canvas Gauge */
+  background: #babab2;
+  color: #444;
+  /* Font identique à Canvas Gauge (gauge.js) - police "Led" = digital-7-mono */
+  font-family: 'Led', 'Digital-7 Mono', 'Courier New', monospace;
+  font-size: 30px;
+  font-weight: normal;
+  /* Taille réduite pour correspondre au valueBox de speedGauge */
+  min-width: 65px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: none;
+  z-index: 100;
+  text-align: center;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}

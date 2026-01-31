@@ -5,18 +5,23 @@
  */
 
 
-//*********************************************************************************************        
+//*********************************************************************************************
 //                          temperature 2 demi gauge left
 //*********************************************************************************************
-function tempGaugeL(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function tempGaugeL(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
         var gaugeTemperatureL = new Gauge({
-            renderTo    : 'gaugeTemperatureL',
+            renderTo    : canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width       : 300,
             height      : 300,
             glow        : false,
             units       : unit,
-            //valueBoxPlace:'center', //up center down
-            //valueBoxPlace_L_R:'left',// left center right
+            valueBoxPlace:'center', //up center down
+            valueBoxPlace_L_R:'right',// left center right - DROITE pour gaugeL
+            valueFormat: {
+                "int": 3, // nb de chiffres avant la virgule
+                "dec": 0  // pas de décimales (comme speedGauge)
+            },
             title       : 'Temp',
             minValue    : gradMin,//valua Min de echelle
             maxValue    : gradMax,// value Max de l'echelle
@@ -72,11 +77,10 @@ function tempGaugeL(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc
                 
             },
              valueBox: {
-               
-                visible: false
+                visible: true  // ACTIVÉ: afficheur numérique centre-droite
             },
             valueText: {
-                visible: false
+                visible: true
             },
             
             animation : {

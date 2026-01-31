@@ -8,9 +8,10 @@
 //*********************************************************************************************        
 //                          fuel 2 demi gauge left
 //*********************************************************************************************
-function fuelGaugeL(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function fuelGaugeL(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
         var gaugeFuelL = new Gauge({
-            renderTo    : 'gaugeFuelL',
+            renderTo    : canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width       : 300,
             height      : 300,
             glow        : false,

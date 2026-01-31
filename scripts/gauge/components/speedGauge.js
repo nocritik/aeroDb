@@ -5,12 +5,13 @@
  */
 
 
-//*********************************************************************************************        
-//                          speed gauge 
 //*********************************************************************************************
-function speedGauge(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
+//                          speed gauge
+//*********************************************************************************************
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function speedGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
     var gaugeSpeed1 = new Gauge({
-            renderTo: 'gaugeSpeed1',
+            renderTo: canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width: 300,
             height: 300,
             glow: true,

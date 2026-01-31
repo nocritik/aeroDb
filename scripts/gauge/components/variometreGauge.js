@@ -6,9 +6,10 @@
 //*********************************************************************************************        
 //                          temperature gauge 
 //*********************************************************************************************
- function variometreGauge(tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function variometreGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affPostHor,arc11,arc12,arc21,arc22,arc31,arc32){
         var variometreGauge = new Gauge({
-            renderTo    : 'gaugeVariometer',
+            renderTo    : canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width       : 300,
             height      : 300,
             glow        : false,

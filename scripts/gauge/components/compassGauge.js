@@ -7,9 +7,10 @@
 //*********************************************************************************************        
 //                          compass gauge 
 //*********************************************************************************************    
-function compass(){
+// MODIFICATION: Ajout du paramètre canvasId pour supporter plusieurs jauges du même type
+export function compass(canvasId){
         var gaugeCompass = new Gauge({
-            renderTo: 'gaugeCompass',
+            renderTo: canvasId,  // CORRECTION: Utiliser l'ID unique passé en paramètre
             width: 300,
             height: 300,
             glow: false,
