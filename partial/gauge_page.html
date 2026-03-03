@@ -12,26 +12,35 @@
         <link href="../css/flightindicators.css" rel="stylesheet" type="text/css"/>
         <link href="../css/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
 
-        <script src="../scripts/jquery-1.12.3.min.js" type="text/javascript"></script>
+        <script src="../src/utils/jquery-1.12.3.min.js" type="text/javascript"></script>
         <script src="../scripts/boostrap/bootstrap.min.js" type="text/javascript"></script>    
         <script src="../css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.js" type="text/javascript"></script>
 
         <script>var CANV_GAUGE_FONTS_PATH = '../css/fonts'</script>
         <script src="../scripts/gauge/components/gauge.js" type="text/javascript"></script>
         <script src="../scripts/gauge/creatGradu.js" type="text/javascript"></script>
+        <script src="../src/utils/usbReader.js" type="text/javascript"></script>
+        <script src="../src/utils/wifiReader.js" type="text/javascript"></script>
         <script src="../scripts/animGauges.js" type="text/javascript"></script>
+        <script src="../src/utils/usbSimulator.js" type="text/javascript"></script>
 
         <!-- Modules ES6 pour les jauges -->
         <script src="../scripts/gauge/components/speedGauge.js" type="module"></script>
-        <script src="../scripts/gauge/components/tempGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempWaterGauge.js" type="module"></script>
         <script src="../scripts/gauge/components/compassGauge.js" type="module"></script>
-        <script src="../scripts/gauge/components/tempGaugeL.js" type="module"></script>
-        <script src="../scripts/gauge/components/tempGaugeR.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempWaterGaugeL.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempWaterGaugeR.js" type="module"></script>
         <script src="../scripts/gauge/components/fuelGauge.js" type="module"></script>
         <script src="../scripts/gauge/components/fuelGaugeL.js" type="module"></script>
         <script src="../scripts/gauge/components/fuelGaugeR.js" type="module"></script>
         <script src="../scripts/gauge/components/variometreGauge.js" type="module"></script>
         <script src="../scripts/gauge/components/tachimeter.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempCHTGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempCHTGaugeL.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempCHTGaugeR.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempEGTGauge.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempEGTGaugeL.js" type="module"></script>
+        <script src="../scripts/gauge/components/tempEGTGaugeR.js" type="module"></script>
         <script src="../scripts/gauge/components/addGauge.js" type="module"></script>
 
         <script src="../scripts/gauge/saveGauge.js" type="module"></script>
@@ -88,10 +97,10 @@
                                         <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5"> 
                                             <select name="selectList" id="listeInstrument" class="form-control"> 
                                                 <option value="gaugeSpeed1">Vitesse</option> 
-                                                <option value="gaugeTemperature">Temp Simple</option> 
-                                                <option value="gaugeTemperatureR">Temperature droite</option> 
-                                                <option value="gaugeTemperatureL">Temperature gauche</option> 
-                                                <option value="gaugeTemperatureD">Temp Double</option>
+                                                <option value="gaugeWater">Water Simple</option>
+                                                <option value="gaugeWaterR">Water droite</option>
+                                                <option value="gaugeWaterL">Water gauche</option>
+                                                <option value="gaugeWaterD">Water Double</option>
                                                 <option value="gaugeCompass">Compas</option>
                                                 <option value="gaugeVariometer">Variometre</option>
                                                 <option value="attitude">Horizon</option>
@@ -100,11 +109,18 @@
                                                 <option value="altimeter">Altimetre 1</option>
                                                 <option value="gaugeFuelD">Fuel double</option>
                                                 <option value="gaugeFuel1">Fuel Simple</option>
+                                                <option value="gaugeFuelL">Fuel gauche</option>
+                                                <option value="gaugeFuelR">Fuel droite</option>
                                                 <option value="gaugeTachimeter">Tachimètre</option>
-                                                
-                                                
-                                                
-                                            </select> 
+                                                <option value="gaugeCHT">CHT Simple</option>
+                                                <option value="gaugeCHTL">CHT gauche</option>
+                                                <option value="gaugeCHTR">CHT droite</option>
+                                                <option value="gaugeCHTD">CHT Double</option>
+                                                <option value="gaugeEGT">EGT Simple</option>
+                                                <option value="gaugeEGTL">EGT gauche</option>
+                                                <option value="gaugeEGTR">EGT droite</option>
+                                                <option value="gaugeEGTD">EGT Double</option>
+                                            </select>
                                         </div> 
                                     </div>                         
                                 </div>                 
@@ -234,6 +250,69 @@
         <script src="../css/prism/prism.js" type="text/javascript"></script>
 
         <script src="../scripts/event.js" type="text/javascript"></script>
+        
+        <!-- Configuration management -->
+        <script type="module">
+            import { ConfigService } from '../src/services/ConfigService.js';
+            
+            // Initialiser la configuration depuis config.ini au premier lancement
+            ConfigService.initialize().then(config => {
+                console.info('[Gauge Page] Configuration initialisée:', config);
+                
+                // Appliquer la configuration au chargement de la page
+                applyConfiguration(config);
+            }).catch(error => {
+                console.error('[Gauge Page] Erreur initialisation:', error);
+                // Utiliser la config par défaut en cas d'erreur
+                applyConfiguration(ConfigService.getConfig());
+            });
+            
+            function applyConfiguration(config) {
+                // Gérer l'affichage des panneaux selon le mode
+                const isProdMode = config.environment === 'prod';
+                
+                // Masquer/Afficher le simulateur USB
+                const simulatorPanel = document.getElementById('json-simulator-panel');
+                if (simulatorPanel) {
+                    simulatorPanel.style.display = isProdMode ? 'none' : 'flex';
+                }
+                
+                // Masquer/Afficher le panneau WiFi
+                const wifiPanel = document.getElementById('wifi-panel');
+                if (wifiPanel) {
+                    wifiPanel.style.display = isProdMode ? 'none' : 'flex';
+                }
+                
+                // Démarrer automatiquement selon la source de données
+                setTimeout(function() {
+                    switch(config.dataSource) {
+                        case 'simulation':
+                            console.info('[Config] Mode simulation activé');
+                            if (typeof jsonSimulator !== 'undefined' && !isProdMode) {
+                                jsonSimulator.start(5);
+                            }
+                            break;
+                        case 'wifi':
+                            console.info('[Config] Mode WiFi activé:', config.wifi);
+                            if (typeof wifiReader !== 'undefined') {
+                                wifiReader.connect(config.wifi.host, config.wifi.port);
+                            }
+                            break;
+                        case 'usb':
+                            console.info('[Config] Mode USB activé');
+                            if (typeof usbReader !== 'undefined') {
+                                // Le lecteur USB se connecte automatiquement
+                            }
+                            break;
+                    }
+                }, 500);
+            }
+            
+            // Écouter les changements de configuration
+            document.addEventListener('configchange', function(e) {
+                console.info('[Config] Configuration modifiée, rechargement recommandé');
+            });
+        </script>
     </body>  
 
 

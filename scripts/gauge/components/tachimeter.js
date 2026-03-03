@@ -108,19 +108,25 @@ export function tachimeter(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,aff
         valueDisplay.textContent = '0';
 
         gaugeTachimeter.onready = function () {
-            // Mise à jour de la valeur cible toutes les 1500ms
+            // Push : mise à jour immédiate à la réception d'une trame USB
+            document.addEventListener('flightdata', function(e) {
+                if (e.detail.rpm !== undefined) {
+                    gaugeTachimeter.setValue(Math.round(e.detail.rpm) / TACH_DIVISOR);
+                }
+            });
+            // Fallback simulation : polling toutes les 350 ms quand USB non connecté
             setInterval(function () {
-                var data = dataTachimeter(); // Valeur réelle (ex: 7000)
-                // Aiguille positionnée à valeur/100 (ex: 70)
-                gaugeTachimeter.setValue(data / TACH_DIVISOR);
-            }, 1500);
+                if (!usbReader.isConnected) {
+                    var data = dataTachimeter();
+                    gaugeTachimeter.setValue(data / TACH_DIVISOR);
+                }
+            }, 350);
 
-            // Mise à jour rapide de l'afficheur pour suivre l'animation de l'aiguille
+            // Mise à jour rapide de l'afficheur numérique pour suivre l'animation de l'aiguille
             setInterval(function () {
-                // Lire la valeur animée actuelle de la jauge et multiplier par 100
                 var currentValue = gaugeTachimeter.value * TACH_DIVISOR;
                 valueDisplay.textContent = Math.round(currentValue);
-            }, 50); // Rafraîchissement toutes les 50ms pour fluidité
+            }, 50);
         };
         gaugeTachimeter.setRawValue(0);
         gaugeTachimeter.draw();

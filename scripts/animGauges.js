@@ -1,127 +1,134 @@
 /*
- * Animation des instruments de vol et jauges
- * Les indicateurs créés dynamiquement utilisent les fonctions data* ci-dessous
+ * Fonctions data*() — Fallback polling des instruments de vol
+ *
+ * Ces fonctions sont appelées par les jauges via un setInterval de secours,
+ * uniquement quand aucune source de données n'est active
+ * (usbReader.isConnected = false).
+ *
+ * Quand une source est active (USB, WiFi, simulateur), les mises à jour
+ * transitent par l'événement 'flightdata' — ces fonctions ne sont pas appelées.
+ *
+ * Sources de données (fichiers séparés) :
+ *   usbReader.js      — Port USB série (Web Serial API, Chrome/Edge 89+)
+ *   wifiReader.js     — WiFi / WebSocket (à venir)
+ *   usbSimulator.js   — Simulateur JSON intégré (développement)
  */
 
-//***************************************************************************
-//                    FONCTIONS DATA POUR INDICATEURS DE VOL
-//                    (jQuery Flight Indicators)
-//***************************************************************************
+// =============================================================================
+//  FONCTIONS DATA — FALLBACK POLLING
+// =============================================================================
 
-//*******************set data value attitude (horizon artificiel)**************
 function dataAttitudeRoll() {
-    // Simule un roulis entre -30 et +30 degrés
-    return 30 * Math.sin(Date.now() / 1000);
+    return (usbReader.isConnected && usbReader.data.roll !== undefined)
+        ? usbReader.data.roll : 0;
 }
 
 function dataAttitudePitch() {
-    // Simule un tangage entre -20 et +20 degrés
-    return 20 * Math.sin(Date.now() / 2000);
+    return (usbReader.isConnected && usbReader.data.pitch !== undefined)
+        ? usbReader.data.pitch : 0;
 }
-//******************************************
 
-//*******************set data value heading (cap)**************
 function dataHeading() {
-    // Simule un cap qui tourne lentement (0-360)
-    return (Date.now() / 100) % 360;
+    return (usbReader.isConnected && usbReader.data.heading !== undefined)
+        ? usbReader.data.heading : 0;
 }
-//******************************************
 
-//*******************set data value altimeter**************
 function dataAltitude() {
-    // Simule une altitude entre 0 et 5000 pieds
-    return 2500 + 2500 * Math.sin(Date.now() / 5000);
+    return (usbReader.isConnected && usbReader.data.altitude !== undefined)
+        ? usbReader.data.altitude : 0;
 }
 
 function dataPressure() {
-    // Simule une pression atmosphérique entre 1000 et 1030 hPa
-    return 1013 + 15 * Math.sin(Date.now() / 10000);
+    return (usbReader.isConnected && usbReader.data.pressure !== undefined)
+        ? usbReader.data.pressure : 1013;
 }
-//******************************************
 
-//*******************set data value turn coordinator (bille)**************
 function dataTurnCoordinator() {
-    // Simule un virage entre -30 et +30 degrés
-    return 30 * Math.sin(Date.now() / 1500);
+    return (usbReader.isConnected && usbReader.data.turnCoordinator !== undefined)
+        ? usbReader.data.turnCoordinator : 0;
 }
-//******************************************
 
-//*******************set data value variometer (flight indicator)**************
 function dataVariometerFI() {
-    // Simule un taux de montée/descente entre -2 et +2
-    return 2 * Math.sin(Date.now() / 2000);
+    return (usbReader.isConnected && usbReader.data.variometer !== undefined)
+        ? usbReader.data.variometer : 0;
 }
-//****************************************** 
 
- //*******************set data value compass**************
 function dataCompas() {
-               var dataCompasGauge = Math.random() * 365;
-         return dataCompasGauge;   
-        };
- //******************************************
- 
+    return (usbReader.isConnected && usbReader.data.compass !== undefined)
+        ? usbReader.data.compass : 0;
+}
 
- //*******************set data value speedGauge**************
 function dataSpeed() {
-               var dataSpeedGauge = Math.random() * (165 - 120) + 120;
-         return dataSpeedGauge;   
-        };
- //******************************************  
+    return (usbReader.isConnected && usbReader.data.speed !== undefined)
+        ? usbReader.data.speed : 0;
+}
 
-  //*******************set data value tachimeterGauge**************
 function dataTachimeter() {
-    // Simule des RPM entre 2000 et 7000 (valeurs réalistes pour moteur ULM)
-    var dataTachimeterGauge = Math.random() * (7000 - 2000) + 2000;
-    return Math.round(dataTachimeterGauge);
-};
- //******************************************  
+    return (usbReader.isConnected && usbReader.data.rpm !== undefined)
+        ? Math.round(usbReader.data.rpm) : 0;
+}
 
- //*******************set data value tempGauge**************
-function dataTemp() {
-    var dataTempGauge =  (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
-    return dataTempGauge;   
-};
- //******************************************  
+function dataWater() {
+    return (usbReader.isConnected && usbReader.data.water !== undefined)
+        ? usbReader.data.water : 0;
+}
 
-//*******************set data value tempGaugeL**************
-function dataTempL() {
-    var dataTempGaugeL =  Math.random() * 120;
-    return dataTempGaugeL;   
-};
- //****************************************** 
+function dataWaterL() {
+    return (usbReader.isConnected && usbReader.data.waterL !== undefined)
+        ? usbReader.data.waterL : 0;
+}
 
- //*******************set data value tempGaugeR**************
-function dataTempR() {
-               var dataTempGaugeR =   Math.random() * 120;
-         return dataTempGaugeR;   
-        };
- //******************************************  
+function dataWaterR() {
+    return (usbReader.isConnected && usbReader.data.waterR !== undefined)
+        ? usbReader.data.waterR : 0;
+}
 
- //*******************set data value variometreGauge**************
+function dataCHT() {
+    return (usbReader.isConnected && usbReader.data.cht !== undefined)
+        ? usbReader.data.cht : 0;
+}
+
+function dataCHTL() {
+    return (usbReader.isConnected && usbReader.data.chtL !== undefined)
+        ? usbReader.data.chtL : 0;
+}
+
+function dataCHTR() {
+    return (usbReader.isConnected && usbReader.data.chtR !== undefined)
+        ? usbReader.data.chtR : 0;
+}
+
+function dataEGT() {
+    return (usbReader.isConnected && usbReader.data.egt !== undefined)
+        ? usbReader.data.egt : 0;
+}
+
+function dataEGTL() {
+    return (usbReader.isConnected && usbReader.data.egtL !== undefined)
+        ? usbReader.data.egtL : 0;
+}
+
+function dataEGTR() {
+    return (usbReader.isConnected && usbReader.data.egtR !== undefined)
+        ? usbReader.data.egtR : 0;
+}
+
 function dataVario() {
-               var dataVariometreGauge = (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
-         return dataVariometreGauge;   
-        };
- //******************************************   
+    return (usbReader.isConnected && usbReader.data.vario !== undefined)
+        ? usbReader.data.vario : 0;
+}
 
-  //*******************set data value tempGaugeR**************
 function dataFuelR() {
-               var dataFuelGaugeR =   Math.random() * 120;
-         return dataFuelGaugeR;   
-        };
- //****************************************** 
+    return (usbReader.isConnected && usbReader.data.fuelR !== undefined)
+        ? usbReader.data.fuelR : 0;
+}
 
-   //*******************set data value tempGaugeR**************
 function dataFuelL() {
-               var dataFuelGaugeL =   Math.random() * 120;
-         return dataFuelGaugeL;   
-        };
- //****************************************** 
+    return (usbReader.isConnected && usbReader.data.fuelL !== undefined)
+        ? usbReader.data.fuelL : 0;
+}
 
-    //*******************set data value tempGaugeR**************
 function dataFuel() {
-               var dataFuelGauge =   (Math.random() * 1 > .5 ? -1 : 1) * Math.random() * 50;
-         return dataFuelGauge;   
-        };
- //****************************************** 
- 
+    return (usbReader.isConnected && usbReader.data.fuel !== undefined)
+        ? usbReader.data.fuel : 0;
+}

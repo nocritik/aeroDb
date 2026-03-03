@@ -6,15 +6,21 @@
 
 // Imports des fonctions de jauge
 import { speedGauge } from './speedGauge.js';
-import { tempGauge } from './tempGauge.js';
-import { tempGaugeL } from './tempGaugeL.js';
-import { tempGaugeR } from './tempGaugeR.js';
+import { tempWaterGauge } from './tempWaterGauge.js';
+import { tempWaterGaugeL } from './tempWaterGaugeL.js';
+import { tempWaterGaugeR } from './tempWaterGaugeR.js';
 import { compass } from './compassGauge.js';
 import { variometreGauge } from './variometreGauge.js';
 import { gaugeFuel } from './fuelGauge.js';
 import { fuelGaugeL } from './fuelGaugeL.js';
 import { fuelGaugeR } from './fuelGaugeR.js';
 import { tachimeter } from './tachimeter.js';
+import { tempCHTGauge } from './tempCHTGauge.js';
+import { tempCHTGaugeL } from './tempCHTGaugeL.js';
+import { tempCHTGaugeR } from './tempCHTGaugeR.js';
+import { tempEGTGauge } from './tempEGTGauge.js';
+import { tempEGTGaugeL } from './tempEGTGaugeL.js';
+import { tempEGTGaugeR } from './tempEGTGaugeR.js';
 
 export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32) {
 
@@ -45,11 +51,11 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
     // Mapping sécurisé type → fonction (remplacement de eval() pour sécurité)
     var gaugeFunctions = {
         'gaugeSpeed1': gaugeSpeed1,
-        'gaugeTemperature': gaugeTemperature,
         'gaugeCompass': gaugeCompass,
-        'gaugeTemperatureL': gaugeTemperatureL,
-        'gaugeTemperatureR': gaugeTemperatureR,
-        'gaugeTemperatureD': gaugeTemperatureD,
+        'gaugeWater': gaugeWater,
+        'gaugeWaterL': gaugeWaterL,
+        'gaugeWaterR': gaugeWaterR,
+        'gaugeWaterD': gaugeWaterD,
         'attitude': attitude,
         'turn_coordinator': turn_coordinator,
         'heading': heading,
@@ -60,7 +66,15 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         'gaugeFuelL': gaugeFuelL,
         'gaugeFuelR': gaugeFuelR,
         'gaugeFuelD': gaugeFuelD,
-        'gaugeTachimeter': gaugeTachimeter
+        'gaugeTachimeter': gaugeTachimeter,
+        'gaugeCHT': gaugeCHT,
+        'gaugeCHTL': gaugeCHTL,
+        'gaugeCHTR': gaugeCHTR,
+        'gaugeCHTD': gaugeCHTD,
+        'gaugeEGT': gaugeEGT,
+        'gaugeEGTL': gaugeEGTL,
+        'gaugeEGTR': gaugeEGTR,
+        'gaugeEGTD': gaugeEGTD
     };
 
     var gaugeFunction = gaugeFunctions[gaugeType];
@@ -73,7 +87,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
     // CORRECTION BUG: Utiliser gaugeId pour créer des IDs uniques (évite les collisions)
     // Avant: id="gaugeSpeed1" pour toutes les jauges vitesse (collision!)
     // Après: id="gaugeSpeed1_0", "gaugeSpeed1_1", etc. (unique!)
-    function createCanvas(gaugeType){
+    function createCanvas(gaugeType) {
         var canvas = document.createElement("canvas");
         // ID unique = type + "_" + id (ex: "gaugeSpeed1_0", "gaugeSpeed1_1")
         var canvasId = gaugeType + "_" + gaugeId;
@@ -83,7 +97,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         canvasDiv.appendChild(canvas);
         return canvasId; // Retourne l'ID pour le passer aux fonctions de jauge
     }
-    function createCanvas1(gId){
+    function createCanvas1(gId) {
         var canvasDiv1 = document.createElement("div");
         containerDiv.appendChild(canvasDiv1);
         var canvas1 = document.createElement("canvas");
@@ -94,7 +108,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         canvasDiv1.appendChild(canvas1);
         return canvasId;
     }
-    function createSpan(gaugeType){
+    function createSpan(gaugeType) {
         var span = document.createElement("span");
         var spanId = gaugeType + "_" + gaugeId;
         span.setAttribute("id", spanId);
@@ -104,40 +118,38 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         return spanId;
     }
 
-    function gaugeSpeed1(){
+    function gaugeSpeed1() {
         var canvasId = createCanvas(gaugeType);
         speedGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-     }
-    function gaugeTemperature(){
-        var canvasId = createCanvas(gaugeType);
-        tempGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeCompass(){
+    function gaugeWater() {
+        var canvasId = createCanvas(gaugeType);
+        tempWaterGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeCompass() {
         var canvasId = createCanvas(gaugeType);
         compass(canvasId);
     }
-    function gaugeTemperatureL(){
+    function gaugeWaterL() {
         var canvasId = createCanvas(gaugeType);
-        tempGaugeL(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        tempWaterGaugeL(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeTemperatureR(){
+    function gaugeWaterR() {
         var canvasId = createCanvas(gaugeType);
-        tempGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        tempWaterGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeTemperatureD(){
-        var canvasIdL = createCanvas("gaugeTemperatureL");
+    function gaugeWaterD() {
+        var canvasIdL = createCanvas("gaugeWaterL");
         var canvasIdR = createCanvas1(gaugeId);
         $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
-        // Renommer le canvas1 pour tempGaugeR
-        $("#canvas1_" + gaugeId).attr("id", "gaugeTemperatureR_" + gaugeId);
-        tempGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-        tempGaugeR("gaugeTemperatureR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
-        // Déplacer gaugeDivL à la fin du DOM pour qu'il soit au premier plan (au-dessus de tempGaugeR)
+        $("#canvas1_" + gaugeId).attr("id", "gaugeWaterR_" + gaugeId);
+        tempWaterGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        tempWaterGaugeR("gaugeWaterR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
         var gaugeDivL = document.getElementById("gaugeDivL" + gaugeId);
         gaugeDivL.parentElement.appendChild(gaugeDivL);
     }
     // Instruments de vol utilisant jQuery Flight Indicators
-    function attitude (){
+    function attitude() {
         var spanId = createSpan(gaugeType);
         // Initialiser l'indicateur d'attitude (horizon artificiel)
         var indicator = $.flightIndicator('#' + spanId, 'attitude', {
@@ -147,7 +159,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
             img_directory: '../img/'
         });
         // Animation avec les données simulées
-        setInterval(function() {
+        setInterval(function () {
             indicator.setRoll(dataAttitudeRoll());
             indicator.setPitch(dataAttitudePitch());
         }, 100);
@@ -161,7 +173,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
             img_directory: '../img/'
         });
         // Animation avec les données simulées
-        setInterval(function() {
+        setInterval(function () {
             indicator.setTurn(dataTurnCoordinator());
         }, 100);
     }
@@ -185,14 +197,14 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         }
 
         // Animation avec les données simulées
-        setInterval(function() {
+        setInterval(function () {
             var headingValue = dataHeading();
             indicator.setHeading(headingValue);
             // Mettre à jour l'afficheur numérique
             valueDisplay.textContent = Math.round(headingValue);
         }, 100);
     }
-    function altimeter(){
+    function altimeter() {
         var spanId = createSpan(gaugeType);
         // Initialiser l'altimètre
         var indicator = $.flightIndicator('#' + spanId, 'altimeter', {
@@ -202,12 +214,12 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
             img_directory: '../img/'
         });
         // Animation avec les données simulées
-        setInterval(function() {
+        setInterval(function () {
             indicator.setAltitude(dataAltitude());
             indicator.setPressure(dataPressure());
         }, 100);
     }
-    function variometer(){
+    function variometer() {
         var spanId = createSpan(gaugeType);
         // Initialiser le variomètre
         var indicator = $.flightIndicator('#' + spanId, 'variometer', {
@@ -216,167 +228,212 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
             img_directory: '../img/'
         });
         // Animation avec les données simulées
-        setInterval(function() {
+        setInterval(function () {
             indicator.setVario(dataVariometerFI());
         }, 100);
     }
-    function gaugeVariometer(){
+    function gaugeVariometer() {
         var canvasId = createCanvas(gaugeType);
         variometreGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeFuel1(){
+    function gaugeFuel1() {
         var canvasId = createCanvas(gaugeType);
         gaugeFuel(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeFuelL(){
+    function gaugeFuelL() {
         var canvasId = createCanvas(gaugeType);
         fuelGaugeL(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeFuelR(){
+    function gaugeFuelR() {
         var canvasId = createCanvas(gaugeType);
         fuelGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    function gaugeFuelD(){
+    function gaugeFuelD() {
         var canvasIdL = createCanvas("gaugeFuelL");
         var canvasIdR = createCanvas1(gaugeId);
         $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
-        // Renommer le canvas1 pour fuelGaugeR
         $("#canvas1_" + gaugeId).attr("id", "gaugeFuelR_" + gaugeId);
-        fuelGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-        fuelGaugeR("gaugeFuelR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        fuelGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
+        fuelGaugeR("gaugeFuelR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
+        var gaugeDivL = document.getElementById("gaugeDivL" + gaugeId);
+        gaugeDivL.parentElement.appendChild(gaugeDivL);
     }
-    function gaugeTachimeter(){
+    function gaugeTachimeter() {
         var canvasId = createCanvas(gaugeType);
         tachimeter(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
     }
-    
-//    switch (gaugeType) {
-//        case "gauge-speed1":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            speedGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//
-//        case "gauge-temperature":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            tempGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//
-//        case "gauge-compass":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            compass();
-//            break;
-//
-//        case "gauge-temperatureL":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            tempGaugeL(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//
-//        case "gauge-temperatureR":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            tempGaugeR(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//
-//        case "gauge-temperatureD":
-//
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//
-//            canvasDiv1 = document.createElement("div");                 
-//            containerDiv.appendChild(canvasDiv1);
-//            canvas1 = document.createElement("canvas");
-//            canvas1.setAttribute("id", "gauge-temperatureR");
-//            canvas1.setAttribute("width", "300");
-//            canvas1.setAttribute("height", "300");
-//            canvasDiv1.appendChild(canvas1);
-//
-//            $("#" + gaugeType).attr("id", "gauge-temperatureL");
-//            $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
-//            tempGaugeL(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            tempGaugeR(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//
-//        case "attitude":
-//            span = document.createElement("span");
-//            span.setAttribute("id", gaugeType);
-//            span.setAttribute("width", "300");
-//            span.setAttribute("height", "300");
-//            canvasDiv.appendChild(span);
-//
-//            break;
-//            
-//        case "turn_coordinator":
-//            span = document.createElement("span");
-//            span.setAttribute("id", gaugeType);
-//            span.setAttribute("width", "300");
-//            span.setAttribute("height", "300");
-//            canvasDiv.appendChild(span);
-//            break;
-//        
-//        case "heading":
-//            span = document.createElement("span");
-//            span.setAttribute("id", gaugeType);
-//            span.setAttribute("width", "300");
-//            span.setAttribute("height", "300");
-//            canvasDiv.appendChild(span);
-//            break;
-//        
-//        case "altimeter":
-//            span = document.createElement("span");
-//            span.setAttribute("id", gaugeType);
-//            span.setAttribute("width", "300");
-//            span.setAttribute("height", "300");
-//            canvasDiv.appendChild(span);
-//            break;
-//            
-//         case "variometer":
-//            span = document.createElement("span");
-//            span.setAttribute("id", gaugeType);
-//            span.setAttribute("width", "300");
-//            span.setAttribute("height", "300");
-//            canvasDiv.appendChild(span);
-//            break;   
-//        
-//       case "gauge-variometer":
-//            canvas = document.createElement("canvas");
-//            canvas.setAttribute("id", gaugeType);
-//            canvas.setAttribute("width", "300");
-//            canvas.setAttribute("height", "300");
-//            canvasDiv.appendChild(canvas);
-//            variometreGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
-//            break;
-//         
-//        
-//        default:
-//            text = "defaut de type d'intrument";
-//    }
+    function gaugeCHT() {
+        var canvasId = createCanvas(gaugeType);
+        tempCHTGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeCHTL() {
+        var canvasId = createCanvas(gaugeType);
+        tempCHTGaugeL(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeCHTR() {
+        var canvasId = createCanvas(gaugeType);
+        tempCHTGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeCHTD() {
+        var canvasIdL = createCanvas("gaugeCHTL");
+        var canvasIdR = createCanvas1(gaugeId);
+        $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
+        $("#canvas1_" + gaugeId).attr("id", "gaugeCHTR_" + gaugeId);
+        tempCHTGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        tempCHTGaugeR("gaugeCHTR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
+        var gaugeDivL = document.getElementById("gaugeDivL" + gaugeId);
+        gaugeDivL.parentElement.appendChild(gaugeDivL);
+    }
+    function gaugeEGT() {
+        var canvasId = createCanvas(gaugeType);
+        tempEGTGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeEGTL() {
+        var canvasId = createCanvas(gaugeType);
+        tempEGTGaugeL(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeEGTR() {
+        var canvasId = createCanvas(gaugeType);
+        tempEGTGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    }
+    function gaugeEGTD() {
+        var canvasIdL = createCanvas("gaugeEGTL");
+        var canvasIdR = createCanvas1(gaugeId);
+        $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
+        $("#canvas1_" + gaugeId).attr("id", "gaugeEGTR_" + gaugeId);
+        tempEGTGaugeL(canvasIdL, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+        tempEGTGaugeR("gaugeEGTR_" + gaugeId, tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32, true);
+        var gaugeDivL = document.getElementById("gaugeDivL" + gaugeId);
+        gaugeDivL.parentElement.appendChild(gaugeDivL);
+    }
+
+    //    switch (gaugeType) {
+    //        case "gauge-speed1":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            speedGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //
+    //        case "gauge-temperature":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            tempGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //
+    //        case "gauge-compass":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            compass();
+    //            break;
+    //
+    //        case "gauge-temperatureL":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            tempGaugeL(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //
+    //        case "gauge-temperatureR":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            tempGaugeR(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //
+    //        case "gauge-temperatureD":
+    //
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //
+    //            canvasDiv1 = document.createElement("div");                 
+    //            containerDiv.appendChild(canvasDiv1);
+    //            canvas1 = document.createElement("canvas");
+    //            canvas1.setAttribute("id", "gauge-temperatureR");
+    //            canvas1.setAttribute("width", "300");
+    //            canvas1.setAttribute("height", "300");
+    //            canvasDiv1.appendChild(canvas1);
+    //
+    //            $("#" + gaugeType).attr("id", "gauge-temperatureL");
+    //            $("#gaugeDivL" + gaugeId).attr("class", "demiContainer-canvasL");
+    //            tempGaugeL(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            tempGaugeR(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //
+    //        case "attitude":
+    //            span = document.createElement("span");
+    //            span.setAttribute("id", gaugeType);
+    //            span.setAttribute("width", "300");
+    //            span.setAttribute("height", "300");
+    //            canvasDiv.appendChild(span);
+    //
+    //            break;
+    //            
+    //        case "turn_coordinator":
+    //            span = document.createElement("span");
+    //            span.setAttribute("id", gaugeType);
+    //            span.setAttribute("width", "300");
+    //            span.setAttribute("height", "300");
+    //            canvasDiv.appendChild(span);
+    //            break;
+    //        
+    //        case "heading":
+    //            span = document.createElement("span");
+    //            span.setAttribute("id", gaugeType);
+    //            span.setAttribute("width", "300");
+    //            span.setAttribute("height", "300");
+    //            canvasDiv.appendChild(span);
+    //            break;
+    //        
+    //        case "altimeter":
+    //            span = document.createElement("span");
+    //            span.setAttribute("id", gaugeType);
+    //            span.setAttribute("width", "300");
+    //            span.setAttribute("height", "300");
+    //            canvasDiv.appendChild(span);
+    //            break;
+    //            
+    //         case "variometer":
+    //            span = document.createElement("span");
+    //            span.setAttribute("id", gaugeType);
+    //            span.setAttribute("width", "300");
+    //            span.setAttribute("height", "300");
+    //            canvasDiv.appendChild(span);
+    //            break;   
+    //        
+    //       case "gauge-variometer":
+    //            canvas = document.createElement("canvas");
+    //            canvas.setAttribute("id", gaugeType);
+    //            canvas.setAttribute("width", "300");
+    //            canvas.setAttribute("height", "300");
+    //            canvasDiv.appendChild(canvas);
+    //            variometreGauge(tabGrad, unit, gradMin, gradMax, affPosVert, affPostHor, arc11, arc12, arc21, arc22, arc31, arc32);
+    //            break;
+    //         
+    //        
+    //        default:
+    //            text = "defaut de type d'intrument";
+    //    }
 
     containerDiv.onclick = function () {
         $('#addInstModal').modal("show");

@@ -101,10 +101,18 @@ export function compass(canvasId){
         });
 
         gaugeCompass.onready = function () {
+            // Push : mise à jour immédiate à la réception d'une trame USB
+            document.addEventListener('flightdata', function(e) {
+                if (e.detail.compass !== undefined) {
+                    gaugeCompass.setValue(e.detail.compass);
+                }
+            });
+            // Fallback simulation : polling toutes les 350 ms quand USB non connecté
             setInterval(function () {
-               var data = dataCompas();
-                gaugeCompass.setValue(data);
-            }, 1500);
+                if (!usbReader.isConnected) {
+                    gaugeCompass.setValue(dataCompas());
+                }
+            }, 350);
         };
         gaugeCompass.setRawValue(0);
         gaugeCompass.draw();

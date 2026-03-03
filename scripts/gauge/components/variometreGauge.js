@@ -93,10 +93,18 @@ export function variometreGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVer
         });
         
         variometreGauge.onready = function() {
+            // Push : mise à jour immédiate à la réception d'une trame USB
+            document.addEventListener('flightdata', function(e) {
+                if (e.detail.vario !== undefined) {
+                    variometreGauge.setValue(e.detail.vario);
+                }
+            });
+            // Fallback simulation : polling toutes les 350 ms quand USB non connecté
             setInterval(function() {
-               var data = dataVario();
-                variometreGauge.setValue(data); // affiche la data reçu sur l'instrument
-            }, 1500);
+                if (!usbReader.isConnected) {
+                    variometreGauge.setValue(dataVario());
+                }
+            }, 350);
         };
         variometreGauge.setRawValue(0);
         variometreGauge.draw();

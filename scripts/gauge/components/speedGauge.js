@@ -95,10 +95,18 @@ export function speedGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,aff
         });
 
         gaugeSpeed1.onready = function () {
+            // Push : mise à jour immédiate à la réception d'une trame USB
+            document.addEventListener('flightdata', function(e) {
+                if (e.detail.speed !== undefined) {
+                    gaugeSpeed1.setValue(e.detail.speed);
+                }
+            });
+            // Fallback simulation : polling toutes les 350 ms quand USB non connecté
             setInterval(function () {
-                var data = dataSpeed();
-                gaugeSpeed1.setValue(data);
-            }, 1500);
+                if (!usbReader.isConnected) {
+                    gaugeSpeed1.setValue(dataSpeed());
+                }
+            }, 350);
         };
         gaugeSpeed1.setRawValue(0);
         gaugeSpeed1.draw();

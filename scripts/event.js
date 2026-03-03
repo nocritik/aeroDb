@@ -24,7 +24,7 @@ $('#addInstModal').on('shown.bs.modal', function () {
 function TouchSpinValue(p, p1) {
     $("input[name='" + p + "']").TouchSpin({
         min: -100,
-        max: 350,
+        max: 900,
         step: 5,
         maxboostedstep: 1,
         prefix: p1

@@ -94,10 +94,19 @@ export function gaugeFuel(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affP
         });
         
         gaugeFuel1.onready = function() {
+            // Push : mise à jour immédiate à la réception d'une trame USB
+            document.addEventListener('flightdata', function(e) {
+                if (e.detail.fuel !== undefined) {
+                    gaugeFuel1.setValue(e.detail.fuel);
+                }
+            });
+            // Fallback simulation : polling toutes les 350 ms quand USB non connecté
+            // Note: le code original utilisait dataTemp() par erreur, corrigé en dataFuel()
             setInterval(function() {
-               var data = dataTemp(); 
-                gaugeFuel1.setValue(data);
-            }, 1500);
+                if (!usbReader.isConnected) {
+                    gaugeFuel1.setValue(dataFuel());
+                }
+            }, 350);
         };
         gaugeFuel1.setRawValue(0);
         gaugeFuel1.draw();
