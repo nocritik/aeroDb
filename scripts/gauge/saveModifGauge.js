@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -52,6 +52,7 @@ function saveModifGauge(idGauge){
                                   }); 
     //******************************************************************
     localStorage.setItem(idGauge,MyInst); // enregistrement instrument dans localStorage
+
    //debugger
     addInstrument(idGauge,instrument,tabGrad,unit,gradMin,gradMax,affPosVert,affPosHor,arc11,arc12,arc21,arc22,arc31,arc32);//creation du nouvel instrument
 

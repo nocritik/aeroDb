@@ -274,6 +274,7 @@ export class ConfigService {
     /**
      * Génère le contenu du fichier config.ini
      * @private
+     * @param {object} config
      */
     static _generateINIContent(config) {
         return `; AeroDb Configuration File

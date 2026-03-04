@@ -100,10 +100,10 @@ export function variometreGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVer
                 }
             });
             // Fallback simulation : polling toutes les 350 ms quand USB non connecté
-            setInterval(function() {
-                if (!usbReader.isConnected) {
-                    variometreGauge.setValue(dataVario());
-                }
+            // Auto-effaçant dès que USB/WiFi se connecte
+            var _pollId = setInterval(function() {
+                if (usbReader.isConnected) { clearInterval(_pollId); return; }
+                variometreGauge.setValue(dataVario());
             }, 350);
         };
         variometreGauge.setRawValue(0);

@@ -20,6 +20,7 @@ class JsonSimulator {
         this._running = false;
         this._intervalId = null;
         this._hz = 5;
+        this._frame = {};   // buffer réutilisé à chaque tick — évite une allocation par trame
     }
 
     get isRunning() { return this._running; }
@@ -29,58 +30,56 @@ class JsonSimulator {
     // -------------------------------------------------------------------------
 
     /**
-     * Retourne une trame JSON complète avec des valeurs réalistes.
-     * Toutes les variables évoluent de façon sinusoïdale + petit bruit aléatoire
-     * pour simuler un vol en palier avec légères turbulences.
+     * Met à jour le buffer de trame réutilisable avec des valeurs réalistes.
+     * Mute `this._frame` en place — aucune allocation d'objet par tick.
      */
-    _generateFrame() {
+    _updateFrame() {
         var t = Date.now() / 1000;
+        var f = this._frame;
 
         /** Petit bruit centré sur 0, amplitude ±amp */
         var noise = function (amp) { return amp * (Math.random() - 0.5) * 0.4; };
 
-        return {
-            // --- Attitude ---
-            roll: Math.round((30 * Math.sin(t / 3) + noise(4)) * 10) / 10,
-            pitch: Math.round((15 * Math.sin(t / 5) + noise(2)) * 10) / 10,
+        // --- Attitude ---
+        f.roll = Math.round((30 * Math.sin(t / 3) + noise(4)) * 10) / 10;
+        f.pitch = Math.round((15 * Math.sin(t / 5) + noise(2)) * 10) / 10;
 
-            // --- Navigation ---
-            heading: Math.round(((t * 8) % 360 + 360) % 360),
-            compass: Math.round(((t * 8) % 360 + 360) % 360),
+        // --- Navigation ---
+        f.heading = Math.round(((t * 8) % 360 + 360) % 360);
+        f.compass = Math.round(((t * 8) % 360 + 360) % 360);
 
-            // --- Altitude / pression ---
-            altitude: Math.round(1500 + 500 * Math.sin(t / 20) + noise(30)),
-            pressure: Math.round((1013 + 5 * Math.sin(t / 30) + noise(1)) * 10) / 10,
+        // --- Altitude / pression ---
+        f.altitude = Math.round(1500 + 500 * Math.sin(t / 20) + noise(30));
+        f.pressure = Math.round((1013 + 5 * Math.sin(t / 30) + noise(1)) * 10) / 10;
 
-            // --- Vol ---
-            turnCoordinator: Math.round((20 * Math.sin(t / 4) + noise(3)) * 10) / 10,
-            variometer: Math.round((1.5 * Math.sin(t / 7) + noise(0.3)) * 10) / 10,
-            vario: Math.round((30 * Math.sin(t / 7) + noise(5)) * 10) / 10,
+        // --- Vol ---
+        f.turnCoordinator = Math.round((20 * Math.sin(t / 4) + noise(3)) * 10) / 10;
+        f.variometer = Math.round((1.5 * Math.sin(t / 7) + noise(0.3)) * 10) / 10;
+        f.vario = Math.round((30 * Math.sin(t / 7) + noise(5)) * 10) / 10;
 
-            // --- Vitesse / régime moteur ---
-            speed: Math.round(130 + 20 * Math.sin(t / 10) + noise(5)),
-            rpm: Math.round(4500 + 1000 * Math.sin(t / 8) + noise(100)),
+        // --- Vitesse / régime moteur ---
+        f.speed = Math.round(130 + 20 * Math.sin(t / 10) + noise(5));
+        f.rpm = Math.round(4500 + 1000 * Math.sin(t / 8) + noise(100));
 
-            // --- Températures eau ---
-            water: Math.round((80 + 10 * Math.sin(t / 15) + noise(2)) * 10) / 10,
-            waterL: Math.round((78 + 8 * Math.sin(t / 12) + noise(2)) * 10) / 10,
-            waterR: Math.round((82 + 12 * Math.sin(t / 17) + noise(2)) * 10) / 10,
+        // --- Températures eau ---
+        f.water = Math.round((80 + 10 * Math.sin(t / 15) + noise(2)) * 10) / 10;
+        f.waterL = Math.round((78 + 8 * Math.sin(t / 12) + noise(2)) * 10) / 10;
+        f.waterR = Math.round((82 + 12 * Math.sin(t / 17) + noise(2)) * 10) / 10;
 
-            // --- CHT (culasse) ---
-            cht: Math.round(200 + 30 * Math.sin(t / 20) + noise(8)),
-            chtL: Math.round(195 + 25 * Math.sin(t / 18) + noise(6)),
-            chtR: Math.round(205 + 35 * Math.sin(t / 22) + noise(10)),
+        // --- CHT (culasse) ---
+        f.cht = Math.round(200 + 30 * Math.sin(t / 20) + noise(8));
+        f.chtL = Math.round(195 + 25 * Math.sin(t / 18) + noise(6));
+        f.chtR = Math.round(205 + 35 * Math.sin(t / 22) + noise(10));
 
-            // --- EGT (échappement) ---
-            egt: Math.round(720 + 50 * Math.sin(t / 25) + noise(15)),
-            egtL: Math.round(710 + 40 * Math.sin(t / 23) + noise(12)),
-            egtR: Math.round(730 + 60 * Math.sin(t / 27) + noise(18)),
+        // --- EGT (échappement) ---
+        f.egt = Math.round(720 + 50 * Math.sin(t / 25) + noise(15));
+        f.egtL = Math.round(710 + 40 * Math.sin(t / 23) + noise(12));
+        f.egtR = Math.round(730 + 60 * Math.sin(t / 27) + noise(18));
 
-            // --- Carburant ---
-            fuel: Math.round((92 + 10 * Math.sin(t / 58)) * 10) / 10,
-            fuelL: Math.round((47 + 5 * Math.sin(t / 55)) * 10) / 10,
-            fuelR: Math.round((45 + 5 * Math.sin(t / 60)) * 10) / 10
-        };
+        // --- Carburant ---
+        f.fuel = Math.round((92 + 10 * Math.sin(t / 58)) * 10) / 10;
+        f.fuelL = Math.round((47 + 5 * Math.sin(t / 55)) * 10) / 10;
+        f.fuelR = Math.round((45 + 5 * Math.sin(t / 60)) * 10) / 10;
     }
 
     // -------------------------------------------------------------------------
@@ -106,15 +105,16 @@ class JsonSimulator {
         var intervalMs = Math.round(1000 / this._hz);
 
         this._intervalId = setInterval(function () {
-            var frame = self._generateFrame();
+            // Mute le buffer en place — aucune allocation d'objet
+            self._updateFrame();
 
             // Synchroniser les données de usbReader (cohérence avec usbReader.data)
             if (typeof usbReader !== 'undefined') {
-                Object.assign(usbReader._data, frame);
+                Object.assign(usbReader._data, self._frame);
             }
 
             // Dispatcher l'événement — même chemin que le vrai USB
-            document.dispatchEvent(new CustomEvent('flightdata', { detail: frame }));
+            document.dispatchEvent(new CustomEvent('flightdata', { detail: self._frame }));
 
         }, intervalMs);
 

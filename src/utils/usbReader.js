@@ -39,6 +39,7 @@ class UsbFlightDataReader {
         this._connected = false;
         this._buffer    = '';
         this._data      = {};
+        this._decoder   = new TextDecoder();
     }
 
     /** @returns {boolean} Vrai si la lecture est active */
@@ -116,7 +117,6 @@ class UsbFlightDataReader {
 
     /** Boucle de lecture asynchrone en arrière-plan. */
     async _startReading() {
-        var decoder = new TextDecoder();
         try {
             while (this._connected && this._port.readable) {
                 this._reader = this._port.readable.getReader();
@@ -124,7 +124,7 @@ class UsbFlightDataReader {
                     while (true) {
                         var result = await this._reader.read();
                         if (result.done) break;
-                        this._buffer += decoder.decode(result.value, { stream: true });
+                        this._buffer += this._decoder.decode(result.value, { stream: true });
                         var lines = this._buffer.split('\n');
                         this._buffer = lines.pop();
                         for (var i = 0; i < lines.length; i++) {
@@ -154,7 +154,7 @@ class UsbFlightDataReader {
             var parsed = JSON.parse(line);
             Object.assign(this._data, parsed);
             document.dispatchEvent(new CustomEvent('flightdata', {
-                detail: Object.assign({}, this._data)
+                detail: this._data
             }));
         } catch (e) {
             // Ligne non-JSON ignorée (messages de debug du firmware, etc.)

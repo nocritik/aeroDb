@@ -12,6 +12,7 @@ export class StorageService {
      */
     constructor(prefix = 'aero_gauge_') {
         this.prefix = prefix;
+        this._cache = null; // null = non chargé ; Map<id, config> après le premier getAllGauges()
     }
 
     /**
@@ -38,6 +39,10 @@ export class StorageService {
             const key = this._getKey(config.id);
             const json = JSON.stringify(config);
             localStorage.setItem(key, json);
+
+            if (this._cache !== null) {
+                this._cache.set(config.id, config);
+            }
         } catch (error) {
             console.error('Échec de la sauvegarde de la jauge:', error);
             throw new Error(`Sauvegarde échouée: ${error.message}`);
@@ -70,7 +75,12 @@ export class StorageService {
      * @returns {Array<Object>} Tableau de configurations de jauges
      */
     getAllGauges() {
+        if (this._cache !== null) {
+            return Array.from(this._cache.values());
+        }
+
         const gauges = [];
+        this._cache = new Map();
 
         try {
             for (let i = 0; i < localStorage.length; i++) {
@@ -82,6 +92,7 @@ export class StorageService {
                     try {
                         const config = JSON.parse(data);
                         gauges.push(config);
+                        this._cache.set(config.id, config);
                     } catch (parseError) {
                         console.warn(`Données corrompues dans la clé ${key}, ignorée`);
                     }
@@ -89,6 +100,7 @@ export class StorageService {
             }
         } catch (error) {
             console.error('Échec du chargement des jauges:', error);
+            this._cache = null; // invalidate on error
         }
 
         return gauges;
@@ -128,6 +140,11 @@ export class StorageService {
             }
 
             localStorage.removeItem(key);
+
+            if (this._cache !== null) {
+                this._cache.delete(id);
+            }
+
             return true;
         } catch (error) {
             console.error(`Échec de la suppression de la jauge ${id}:`, error);
@@ -175,6 +192,7 @@ export class StorageService {
         }
 
         keys.forEach(key => localStorage.removeItem(key));
+        this._cache = null;
     }
 
     /**
@@ -219,6 +237,7 @@ export class StorageService {
 
         if (migrated > 0) {
             console.log(`✓ Migration réussie: ${migrated} jauge(s) migrée(s) vers le nouveau format`);
+            this._cache = null; // invalider le cache après migration
         }
 
         return migrated;

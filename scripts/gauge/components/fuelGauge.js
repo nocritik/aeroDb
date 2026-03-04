@@ -102,10 +102,10 @@ export function gaugeFuel(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affP
             });
             // Fallback simulation : polling toutes les 350 ms quand USB non connecté
             // Note: le code original utilisait dataTemp() par erreur, corrigé en dataFuel()
-            setInterval(function() {
-                if (!usbReader.isConnected) {
-                    gaugeFuel1.setValue(dataFuel());
-                }
+            // Auto-effaçant dès que USB/WiFi se connecte
+            var _pollId = setInterval(function() {
+                if (usbReader.isConnected) { clearInterval(_pollId); return; }
+                gaugeFuel1.setValue(dataFuel());
             }, 350);
         };
         gaugeFuel1.setRawValue(0);

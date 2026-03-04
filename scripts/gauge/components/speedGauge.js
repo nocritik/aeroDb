@@ -102,10 +102,10 @@ export function speedGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,aff
                 }
             });
             // Fallback simulation : polling toutes les 350 ms quand USB non connecté
-            setInterval(function () {
-                if (!usbReader.isConnected) {
-                    gaugeSpeed1.setValue(dataSpeed());
-                }
+            // Auto-effaçant dès que USB/WiFi se connecte
+            var _pollId = setInterval(function () {
+                if (usbReader.isConnected) { clearInterval(_pollId); return; }
+                gaugeSpeed1.setValue(dataSpeed());
             }, 350);
         };
         gaugeSpeed1.setRawValue(0);

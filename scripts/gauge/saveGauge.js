@@ -1,8 +1,3 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import { addInstrument } from "./components/addGauge.js";
 
 function saveNewGauge(){
@@ -32,13 +27,13 @@ function saveNewGauge(){
         }
     }
     var newId = maxId + 1;
-    //*************** genere les graduations intermediaire *************    
+    //*************** genere les graduations intermediaire *************
 var tabGrad = creatGradu(instrument,gradMin,gradMax);
-           
+
     //******************************************************************
     //************************Crée 'objet json de l'instrument pour la savgarde*************************************
-     
-    
+
+
     var MyInst =  JSON.stringify ({"instrument":instrument,
                                    "gradValue" : tabGrad,
                                    "unité": unit,
@@ -52,10 +47,10 @@ var tabGrad = creatGradu(instrument,gradMin,gradMax);
                                    "arcVertMax":arc22,
                                    "arcRougeMin":arc31,
                                    "arcRougeMax":arc32
-                                  }); 
+                                  });
     //******************************************************************
     localStorage.setItem(newId,MyInst); // enregistrement instrument dans localStorage
-    //console.log("btn save !");
+
     addInstrument(newId,instrument,tabGrad,unit,gradMin,gradMax,affPosVert,affPosHor,arc11,arc12,arc21,arc22,arc31,arc32);//creation du nouvel instrument
 
 
@@ -63,4 +58,3 @@ var tabGrad = creatGradu(instrument,gradMin,gradMax);
 
 // Exposer la fonction sur window pour qu'elle soit accessible depuis event.js (non-module)
 window.saveNewGauge = saveNewGauge;
-

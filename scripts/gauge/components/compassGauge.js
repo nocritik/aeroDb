@@ -108,10 +108,10 @@ export function compass(canvasId){
                 }
             });
             // Fallback simulation : polling toutes les 350 ms quand USB non connecté
-            setInterval(function () {
-                if (!usbReader.isConnected) {
-                    gaugeCompass.setValue(dataCompas());
-                }
+            // Auto-effaçant dès que USB/WiFi se connecte
+            var _pollId = setInterval(function () {
+                if (usbReader.isConnected) { clearInterval(_pollId); return; }
+                gaugeCompass.setValue(dataCompas());
             }, 350);
         };
         gaugeCompass.setRawValue(0);

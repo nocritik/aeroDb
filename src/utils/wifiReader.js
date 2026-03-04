@@ -163,7 +163,7 @@ class WifiFlightDataReader {
             var parsed = JSON.parse(line.trim());
             Object.assign(this._data, parsed);
             document.dispatchEvent(new CustomEvent('flightdata', {
-                detail: Object.assign({}, this._data)
+                detail: this._data
             }));
         } catch (e) {
             // JSON invalide ignoré
