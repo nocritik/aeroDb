@@ -33,7 +33,7 @@ utilisant la bibliothèque `usb-serial-for-android` + bridge JS transparent
   - Reconstruction des lignes depuis les chunks octets (`StringBuilder lineBuffer`)
   - Supporte CH340, CP210x, FTDI, PL2303, CDC/ACM (Arduino)
 - `android/app/src/main/res/xml/device_filter.xml`
-  - Filtre USB pour 6 fabricants courants (FTDI, Silicon Labs, WCH, Prolific, Arduino×2)
+  - Filtre USB pour 6 fabricants courants (FTDI, Silicon Labs, WCH, Prolific, Arduino x2)
   - Valeurs `vendor-id` en décimal (requis par Android)
 
 #### JavaScript
@@ -43,6 +43,16 @@ utilisant la bibliothèque `usb-serial-for-android` + bridge JS transparent
   - Dispatche le même `CustomEvent 'flightdata'` — les jauges sont aveugles à la source
   - Bannière de reconnexion USB (identique à celle de `usbReader.js`)
   - Gestion des listeners Capacitor avec `.remove()` pour éviter les fuites mémoire
+
+#### Arduino (test hardware)
+- `arduino/sendJson/sendJson.ino`
+  - Émetteur de trames JSON pour valider l'ensemble de la chaîne USB
+  - 24 champs JSON couvrant tous les instruments (`roll`, `pitch`, `heading`, `speed`, `rpm`, `water*`, `cht*`, `egt*`, `fuel*`, `vario`, `compass`, `altitude`…)
+  - Valeurs sinusoïdales avec phases décalées — chaque instrument varie indépendamment
+  - Plages : 0–150 (standard), 0–900 (EGT), 0–50 (carburant), ±30°/±15° (attitude), 0–359° (cap)
+  - Baud rate : 115 200 (configurable via `BAUD_RATE`) — idem `config.ini → BaudRate`
+  - Compatible Arduino Nano/Uno (CH340, ATmega16U2) et ESP32
+  - `#include <Arduino.h>` inclus pour l'IntelliSense VSCode
 
 ### 🔧 Fichiers modifiés
 
@@ -61,8 +71,6 @@ utilisant la bibliothèque `usb-serial-for-android` + bridge JS transparent
   - `disconnect()` : idem
   - `_tryAutoConnect()` : chemin Android → `androidSerialBridge.connect()` ;
     chemin desktop inchangé
-  - Les getters `isConnected` et `data` restent sur `this._connected` / `this._data`
-    (synchronisés manuellement après chaque appel au bridge)
 - `partial/gauge_page.html`
   - Ajout `<script src="../src/utils/androidSerialBridge.js">` **avant** `usbReader.js`
 
@@ -72,7 +80,8 @@ utilisant la bibliothèque `usb-serial-for-android` + bridge JS transparent
   architecture, API JS, filtre USB, permissions manifeste, tableau des puces,
   checklist de validation et problèmes courants
 - `docs/implementation-summary.md` : Section Android USB natif ajoutée
-- `docs/CHANGELOG.md` : Cette entrée
+- `docs/usb-json-protocol.md` : Baud rate par défaut corrigé (115 200), sketch de test référencé
+- `docs/modes-fonctionnement.md` : Réécrit pour refléter l'architecture ConfigService actuelle
 
 ### 📊 Compatibilité des puces USB-série
 
@@ -100,123 +109,6 @@ utilisant la bibliothèque `usb-serial-for-android` + bridge JS transparent
   toujours utilisé
 - WiFi (`wifiReader.js`) : **inchangé** sur toutes les plateformes
 - Jauges et instruments : **aucune modification requise** — même événement `flightdata`
-
----
-
-## [1.3.0] - 2026-03-05
-
-### ✨ Nouvelles fonctionnalités
-
-#### Plugin Capacitor natif — USB série Android
-
-Résolution du bug "Web Serial API non supportée sur Android" : l'API
-`navigator.serial` n'est disponible que dans Chrome/Edge. Sur Android
-(APK Capacitor), le WebView ne la supporte pas. La solution implémentée
-est un **plugin Capacitor personnalisé en Java** qui accède directement
-à l'USB via l'API Android `android.hardware.usb`.
-
-Bibliothèque Java : `usb-serial-for-android` v3.8.1 (mik3y / JitPack).
-Supporte CH340, CP210x, FTDI, PL2303, CDC/ACM (Arduino…).
-
-Comportement au démarrage sur Android :
-- Périphérique déjà branché → connexion automatique + dialogue Android (1ère fois)
-- Aucun périphérique → bannière "Branchez le périphérique USB puis touchez ici"
-- Branchement à chaud → OS relance l'app via `USB_DEVICE_ATTACHED` intent
-
-WiFi : `wifiReader.js` entièrement inchangé, fonctionne en parallèle.
-
-### 🔧 Modifications techniques
-
-#### Android (Java / Gradle)
-
-- `android/app/build.gradle` : dépendance `usb-serial-for-android:3.8.1`
-- `android/app/src/main/res/xml/device_filter.xml` : **créé** — filtre des puces USB-série
-- `android/app/src/main/AndroidManifest.xml` : `uses-feature usb.host` + intent `USB_DEVICE_ATTACHED`
-- `android/app/src/main/java/…/UsbSerialPlugin.java` : **créé** — plugin Capacitor, méthodes `getPorts()`, `open()`, `close()`, événements `serialData` / `serialState`
-- `android/app/src/main/java/…/MainActivity.java` : `registerPlugin(UsbSerialPlugin.class)`
-
-#### JavaScript
-
-- `src/utils/androidSerialBridge.js` : **créé** — adaptateur JS → plugin natif, dispatche `'flightdata'`
-- `src/utils/usbReader.js` : délégation au bridge sur Android, Web Serial API inchangée sur desktop
-- `partial/gauge_page.html` : chargement `androidSerialBridge.js` avant `usbReader.js`
-
-#### Documentation
-
-- `docs/packaging.md` : section plugin entièrement réécrite avec architecture, API, tableau puces, dépannage
-- `docs/implementation-summary.md` : section USB Android natif ajoutée
-
-### 📊 Compatibilité
-
-| Plateforme | USB | WiFi |
-|------------|-----|------|
-| Android APK Capacitor | via plugin Java | inchangé |
-| Desktop Chrome / Edge | Web Serial API | inchangé |
-| Desktop Electron | Web Serial API | inchangé |
-
-### 📁 Fichiers créés / modifiés
-
-```
-android/app/build.gradle                               [MODIFIÉ] dépendance usb-serial
-android/app/src/main/AndroidManifest.xml               [MODIFIÉ] USB feature + intent
-android/app/src/main/res/xml/device_filter.xml         [CRÉÉ]
-android/app/src/main/java/…/UsbSerialPlugin.java       [CRÉÉ]
-android/app/src/main/java/…/MainActivity.java          [MODIFIÉ]
-src/utils/androidSerialBridge.js                       [CRÉÉ]
-src/utils/usbReader.js                                 [MODIFIÉ]
-partial/gauge_page.html                                [MODIFIÉ]
-docs/packaging.md                                      [MIS À JOUR]
-docs/implementation-summary.md                         [MIS À JOUR]
-```
-
----
-
-## [1.3.0] - 2026-03-05
-
-### ✨ Nouvelles fonctionnalités
-
-#### Plugin Capacitor natif — USB série Android
-
-Résolution du bug "Web Serial API non supportée sur Android" : l'API
-`navigator.serial` n'est disponible que dans Chrome/Edge. Sur Android
-(APK Capacitor), le WebView ne la supporte pas. La solution implémentée
-est un **plugin Capacitor personnalisé en Java** qui accède directement
-à l'USB via l'API Android `android.hardware.usb`.
-
-**Bibliothèque Java utilisée** : `usb-serial-for-android` v3.8.1 (mik3y,
-JitPack) — supporte CH340, CP210x, FTDI, PL2303, CDC/ACM (Arduino…).
-
-**Comportement au démarrage sur Android** :
-- Périphérique déjà branché → connexion automatique + dialogue Android (1ère fois)
-- Aucun périphérique → bannière "Branchez le périphérique USB puis touchez ici"
-- Branchement à chaud → OS relance l'app via `USB_DEVICE_ATTACHED` intent
-
-**WiFi conservé** : `wifiReader.js` entièrement inchangé.
-
-### 🔧 Modifications techniques
-
-- `android/app/build.gradle` : dépendance `usb-serial-for-android:3.8.1`
-- `android/app/src/main/res/xml/device_filter.xml` : **créé** — filtre USB (CH340, CP210x, FTDI, PL2303, Arduino)
-- `android/app/src/main/AndroidManifest.xml` : `uses-feature usb.host` + intent `USB_DEVICE_ATTACHED`
-- `android/app/.../UsbSerialPlugin.java` : **créé** — plugin Capacitor, méthodes `getPorts()` / `open()` / `close()`, événements `serialData` / `serialState`
-- `android/app/.../MainActivity.java` : `registerPlugin(UsbSerialPlugin.class)`
-- `src/utils/androidSerialBridge.js` : **créé** — bridge JS vers le plugin natif
-- `src/utils/usbReader.js` : délégation au bridge sur Android, Web Serial API conservée sur desktop
-- `partial/gauge_page.html` : chargement du bridge avant `usbReader.js`
-
-### 📊 Compatibilité
-
-| Plateforme | USB | WiFi |
-|------------|-----|------|
-| Android (APK Capacitor) | ✅ plugin Java | ✅ inchangé |
-| Desktop Chrome/Edge | ✅ Web Serial API | ✅ inchangé |
-| Desktop Electron | ✅ Web Serial API | ✅ inchangé |
-
-### 📖 Documentation
-
-- `docs/packaging.md` : réécriture complète de la section "Plugins" avec
-  architecture, API JS, tableau des puces, permissions et dépannage
-- `docs/implementation-summary.md` : ajout section USB Android natif
 
 ---
 
@@ -397,13 +289,6 @@ JitPack) — supporte CH340, CP210x, FTDI, PL2303, CDC/ACM (Arduino…).
 - `src/utils/wifiReader.js` : Respect du mode prod/dev + repositionnement
 - `config/config.ini` : Structure complète
 - `README.md` : Documentation mise à jour
-
-### 📊 Statistiques
-
-- **Lignes de code ajoutées** : ~1200
-- **Nouveaux fichiers** : 6
-- **Fichiers modifiés** : 7
-- **Tests manuels effectués** : ✅ Tous passés
 
 ---
 

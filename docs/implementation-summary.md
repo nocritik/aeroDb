@@ -270,107 +270,22 @@ if (window.androidSerialBridge) {
 // sinon : navigator.serial.getPorts() (code original inchangé)
 ```
 
+### Sketch Arduino de test — sendJson.ino
+
+`arduino/sendJson/sendJson.ino` — émetteur de trames JSON pour valider
+la chaîne complète sans dépendre d'un vrai capteur de vol.
+
+- 24 champs JSON couvrant tous les instruments (`roll`, `pitch`, `heading`, `speed`, `rpm`, `water*`, `cht*`, `egt*`, `fuel*`, `vario`…)
+- Valeurs sinusoïdales avec phases décalées — chaque instrument varie indépendamment
+- Plages : 0–150 (standard), 0–900 (EGT), 0–50 (carburant)
+- Baud rate : 115 200 (`BAUD_RATE` configurable) — idem `config.ini`
+- Compatible Arduino Nano/Uno (CH340, ATmega16U2) et ESP32
+- `#include <Arduino.h>` inclus pour l'IntelliSense VSCode
+
 ### WiFi — aucun changement
 
 `wifiReader.js` est intouché. WiFi et USB fonctionnent en parallèle sur
 toutes les plateformes, les deux sources émettant le même `'flightdata'`.
-
----
-
-## 📱 USB série natif Android — Plugin Capacitor (v1.3.0)
-
-### Problème résolu
-
-L'API `navigator.serial` (Web Serial API) n'est disponible que dans
-Chrome/Edge. Le WebView Android embarqué par Capacitor ne la supporte pas,
-rendant la connexion USB impossible dans l'APK.
-
-### Architecture
-
-```
-Android (câble USB-OTG)            Desktop (Chrome/Edge/Electron)
-        │                                       │
-UsbSerialPlugin.java                   navigator.serial
-        │  notifyListeners()            (Web Serial API)
-        ▼                                       │
-androidSerialBridge.js             usbReader._startReading()
-        │                                       │
-        └──────────────┬────────────────────────┘
-                       │
-              CustomEvent 'flightdata'
-                       │
-           Toutes les jauges ← wifiReader.js (WiFi inchangé)
-```
-
-### Bibliothèque Java — usb-serial-for-android v3.8.1
-
-Puces supportées automatiquement :
-
-| Puce | vendor-id (hex) | vendor-id (décimal) | Produits courants |
-|------|-----------------|---------------------|-------------------|
-| CH340/CH341 | 0x1A86 | 6790 | Nano clones, ESP32 bon marché |
-| CP210x | 0x10C4 | 4292 | ESP32 DevKit officiel |
-| FTDI FT232 | 0x0403 | 1027 | Adaptateurs USB-série de qualité |
-| PL2303 | 0x067B | 1659 | Câbles USB-série génériques |
-| CDC/ACM | 0x2341 | 9025 | Arduino Uno / Leonardo |
-
-### Plugin Java — UsbSerialPlugin.java
-
-Méthodes exposées au JS via `Capacitor.Plugins.UsbSerial` :
-
-| Méthode | Description |
-|---------|-------------|
-| `getPorts()` | Liste les périphériques USB série détectés |
-| `open({ deviceId, baudRate })` | Ouvre le port et démarre la lecture (thread de fond) |
-| `close()` | Ferme proprement la connexion |
-
-Événements émis vers JS :
-
-| Événement | Payload | Déclencheur |
-|-----------|---------|-------------|
-| `serialData` | `{ data: "<ligne JSON>" }` | Chaque ligne complète reçue |
-| `serialState` | `{ connected: bool, error?: string }` | Changement d'état |
-
-La permission USB Android est demandée au runtime via `UsbManager.requestPermission()` + `BroadcastReceiver` one-shot.
-
-### Bridge JS — androidSerialBridge.js
-
-- Instancié **uniquement** si `window.Capacitor.isNativePlatform()` est vrai.
-- Même interface publique que `usbReader` : `connect()`, `disconnect()`, `isConnected`, `data`.
-- Chaque ligne reçue via `serialData` est parsée en JSON et dispatche `CustomEvent('flightdata')`.
-- Doit être chargé **avant** `usbReader.js` dans la page HTML.
-
-### Modifications de usbReader.js
-
-```js
-// connect() et disconnect() : détection de plateforme
-if (window.androidSerialBridge) {
-    return window.androidSerialBridge.connect(baudRate);
-}
-// sinon : Web Serial API (code inchangé)
-```
-
-### Compatibilité
-
-| Plateforme | USB | WiFi |
-|------------|-----|------|
-| Android (APK Capacitor) | ✅ plugin Java | ✅ inchangé |
-| Desktop Chrome/Edge | ✅ Web Serial API | ✅ inchangé |
-| Desktop Electron | ✅ Web Serial API | ✅ inchangé |
-
-### Fichiers créés / modifiés
-
-```
-android/app/build.gradle                     + usb-serial-for-android:3.8.1
-android/app/src/main/AndroidManifest.xml     + uses-feature + intent USB
-android/app/src/main/res/xml/device_filter.xml  [CRÉÉ]
-android/app/.../UsbSerialPlugin.java         [CRÉÉ]
-android/app/.../MainActivity.java            + registerPlugin
-src/utils/androidSerialBridge.js             [CRÉÉ]
-src/utils/usbReader.js                       + délégation Android
-partial/gauge_page.html                      + chargement bridge
-docs/packaging.md                            [MIS À JOUR]
-```
 
 ---
 

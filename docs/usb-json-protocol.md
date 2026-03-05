@@ -88,14 +88,33 @@ par ligne, terminée par un caractère saut de ligne `\n`.
   valeur connue.
 - **Fréquence recommandée** : 2 à 10 Hz (toutes les 100 à 500 ms).
 - **Encodage** : UTF-8.
-- **Vitesse série par défaut** : 9 600 bauds (modifiable via `USB_BAUD_RATE`
-  dans `scripts/animGauges.js`).
+- **Vitesse série par défaut** : 115 200 bauds (configurable dans `config.ini → BaudRate`).
 - Les lignes non-JSON (messages de debug, commentaires firmware) sont ignorées
   sans provoquer d'erreur.
 
 ---
 
-## Exemple de code Arduino minimal
+## Sketch de test intégré — arduino/sendJson/sendJson.ino
+
+Le dépôt inclut un sketch complet qui envoie en boucle une trame JSON
+couvrant **tous** les instruments, avec des valeurs sinusoïdales réalistes.
+Utile pour valider l'ensemble de la chaîne (port USB → jauges) sans capteur réel.
+
+```
+Instruments couverts : roll, pitch, heading, compass, altitude, pressure,
+                       turnCoordinator, variometer, vario, speed, rpm,
+                       water, waterL, waterR, cht, chtL, chtR,
+                       egt, egtL, egtR, fuel, fuelL, fuelR
+Fréquence  : 2 Hz (SEND_INTERVAL_MS = 500 ms, configurable)
+Baud rate  : 115 200 (BAUD_RATE — idem config.ini)
+Matériel   : Arduino Nano/Uno (CH340, ATmega16U2) ou ESP32
+```
+
+Flasher avec Arduino IDE, brancher en USB, ouvrir Chrome → cliquer la bannière.
+
+---
+
+## Exemple de code Arduino avec capteurs réels
 
 ```cpp
 #include <ArduinoJson.h>
@@ -110,7 +129,6 @@ void loop() {
   doc["pressure"] = baro.getPressureHPa();
   doc["speed"]    = pitot.getSpeedKmh();
   doc["rpm"]      = tach.getRPM();
-  doc["temp"]     = oat.getCelsius();
   doc["fuelL"]    = fuelL.getLiters();
   doc["fuelR"]    = fuelR.getLiters();
 

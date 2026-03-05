@@ -1,107 +1,168 @@
-# Modes de fonctionnement — Simulation vs USB
+# Modes de fonctionnement
 
-## Variable de contrôle
+## Configuration de la source de données
 
-Dans `scripts/animGauges.js`, la variable `simulation` est le seul interrupteur
-à modifier pour basculer entre les deux modes :
+La source active est définie dans `config/config.ini` (section `[General]`) :
 
-```javascript
-// Ligne ~32 dans animGauges.js
-var simulation = true;   // true = simulation  |  false = USB
+```ini
+[General]
+Environment = dev        ; dev | prod
+DataSource  = usb        ; simulation | wifi | usb
+```
+
+Elle peut aussi être modifiée via la modale **CONFIGURATION** accessible
+depuis la page d'accueil (`index.html`). La configuration est persistée dans
+`localStorage` et lue au démarrage par `ConfigService.initialize()`.
+
+Au chargement de `gauge_page.html`, la bonne source est démarrée automatiquement :
+
+```
+config.ini  →  DataSource = ?
+                  │
+          ┌───────┼───────┐
+          ▼       ▼       ▼
+      simulation wifi    usb
+          │       │       │
+  jsonSimulator  wifiReader  usbReader
+  .start(5Hz)  .connect()  auto-connect
 ```
 
 ---
 
-## Mode Simulation (`simulation = true`)
+## Mode `simulation`
 
-**Usage :** test de l'interface sans matériel connecté.
+**Usage :** test de l'interface sans aucun matériel connecté.
 
-- Chaque fonction `data*()` génère une valeur mathématique (sinus, aléatoire)
-- Aucune connexion USB n'est tentée, aucune bannière n'apparaît
-- Les jauges se rafraîchissent toutes les **350 ms** via `setInterval`
-- Les indicateurs de vol (horizon, cap, altimètre, bille) se rafraîchissent
-  toutes les **100 ms**
+`jsonSimulator.start()` dispatche `CustomEvent('flightdata')` en boucle
+(2–20 Hz configurables) avec des valeurs sinusoïdales + bruit.
+
+Le panneau de contrôle est visible en mode **dev** uniquement (`Environment = dev`).
+En mode `prod`, il est masqué automatiquement.
 
 ```
-simulation = true
+jsonSimulator.start(5 Hz)
       │
       ▼
-data*() → Math.random() / Math.sin()
+CustomEvent('flightdata', { detail: { roll, pitch, speed, … } })
       │
       ▼
-setInterval 350ms → gauge.setValue()
+Toutes les jauges — mise à jour immédiate
 ```
 
 ---
 
-## Mode USB (`simulation = false`)
+## Mode `wifi`
 
-**Usage :** utilisation réelle avec microcontrôleur.
+**Usage :** microcontrôleur ESP32/ESP8266 en point d'accès WiFi.
 
-### Connexion automatique
+`wifiReader.connect(host, port)` ouvre une connexion WebSocket vers
+`ws://host:port`. Chaque message JSON reçu est dispatché comme `flightdata`.
 
-Au chargement de la page (`DOMContentLoaded`) :
+```ini
+[WiFi]
+Host = 192.168.4.1
+Port = 81
+```
+
+Le panneau de contrôle WiFi est visible en mode **dev** uniquement.
+
+---
+
+## Mode `usb`
+
+**Usage :** microcontrôleur branché en USB (Arduino, ESP32…).
+
+### Desktop — Chrome / Edge / Electron
+
+`usbReader` utilise l'API Web Serial (`navigator.serial`).
+Au chargement de `gauge_page.html` (`DOMContentLoaded`) :
 
 ```
 1. navigator.serial.getPorts()
         │
-        ├── port(s) déjà autorisé(s) → connexion silencieuse et automatique
+        ├── port(s) déjà autorisé(s) → connexion silencieuse automatique
         │
-        └── aucun port autorisé → bannière "Cliquez n'importe où..."
+        └── aucun port autorisé → bannière "Cliquez ici pour connecter…"
                   │
-                  └── premier clic ou touche → dialog sélection port → connexion
+                  └── clic utilisateur → dialog sélection port → connexion
 ```
 
-> La sélection de port via dialog navigateur ne peut pas être déclenchée sans
-> un geste utilisateur (contrainte de sécurité du navigateur).
-> Lors des utilisations suivantes, la reconnexion est entièrement automatique.
+> La sélection de port nécessite un geste utilisateur (contrainte de
+> sécurité du navigateur). Les utilisations suivantes sont entièrement
+> automatiques.
 
-### Mise à jour des jauges
+### Android — APK Capacitor
+
+`navigator.serial` n'est pas disponible dans le WebView Android.
+`androidSerialBridge.js` (chargé avant `usbReader.js`) détecte la plateforme
+et délègue au plugin Java `UsbSerialPlugin` :
 
 ```
-Trame JSON reçue (port série USB)
+android.hardware.usb (OS Android)
       │
+UsbSerialPlugin.java  (thread dédié — SerialInputOutputManager)
+      │  notifyListeners('serialData', { data: "<ligne JSON>" })
       ▼
-_parseLine() → Object.assign(usbReader._data, parsed)
-      │
+androidSerialBridge.js
+      │  JSON.parse → CustomEvent('flightdata', { detail })
       ▼
-CustomEvent('flightdata', { detail: data })  ←── dispatché sur document
-      │
-      ├── speedGauge    → listener → gauge.setValue(e.detail.speed)   (immédiat)
-      ├── compassGauge  → listener → gauge.setValue(e.detail.compass) (immédiat)
-      ├── tachimeter    → listener → gauge.setValue(e.detail.rpm/100) (immédiat)
-      ├── tempGauge     → listener → gauge.setValue(e.detail.temp)    (immédiat)
-      ├── tempGaugeL    → listener → gauge.setValue(e.detail.tempL)   (immédiat)
-      ├── tempGaugeR    → listener → gauge.setValue(inversion)        (immédiat)
-      ├── variometreGauge → listener → gauge.setValue(e.detail.vario) (immédiat)
-      ├── fuelGauge     → listener → gauge.setValue(e.detail.fuel)    (immédiat)
-      ├── fuelGaugeL    → listener → gauge.setValue(e.detail.fuelL)   (immédiat)
-      └── fuelGaugeR    → listener → gauge.setValue(e.detail.fuelR)   (immédiat)
-
-Indicateurs de vol (addGauge.js) : setInterval 100ms → data*() → USB data
+Toutes les jauges — même événement que desktop
 ```
 
-### Fallback si USB non encore connecté
+Câble **USB-OTG** requis. L'OS propose d'ouvrir AeroDb au branchement du
+périphérique (intent `USB_DEVICE_ATTACHED`). La permission USB est demandée
+une seule fois par périphérique.
 
-Tant que `usbReader.isConnected === false`, le `setInterval` à 350ms de chaque
-jauge est actif mais les `data*()` retournent **0** (mode USB sans connexion).
+### Sketch de test — arduino/sendJson/sendJson.ino
+
+Envoi en boucle d'une trame JSON complète sans capteur réel :
+- Fréquence : 2 Hz (configurable via `SEND_INTERVAL_MS`)
+- Baud rate : 115 200 (idem `config.ini → BaudRate`)
+- Tous les champs (`roll`, `pitch`, `heading`, `speed`, `rpm`, `cht*`, `egt*`, `fuel*`…)
+- Compatible Arduino Nano/Uno et ESP32
 
 ---
 
-## Compatibilité navigateur
+## Flux commun à toutes les sources
 
-| Navigateur | Web Serial API | Testé |
-|------------|---------------|-------|
-| Chrome 89+ | ✅ Supporté   | ✅    |
-| Edge 89+   | ✅ Supporté   | ✅    |
-| Firefox    | ❌ Non supporté |     |
-| Safari     | ❌ Non supporté |     |
+Quelle que soit la source, les jauges reçoivent les données via
+`CustomEvent('flightdata')` dispatché sur `document` :
+
+```
+Source active (simulateur / WiFi / USB desktop / USB Android)
+      │
+      ▼
+CustomEvent('flightdata', { detail: { roll, pitch, heading, speed, … } })
+      │
+      ├── speedGauge       → gauge.setValue(e.detail.speed)
+      ├── compassGauge     → gauge.setValue(e.detail.compass)
+      ├── tachimeter       → gauge.setValue(e.detail.rpm / TACH_DIVISOR)
+      ├── tempWaterGauge   → gauge.setValue(e.detail.water)
+      ├── tempCHTGauge     → gauge.setValue(e.detail.cht)
+      ├── tempEGTGauge     → gauge.setValue(e.detail.egt)
+      ├── fuelGauge        → gauge.setValue(e.detail.fuel)
+      ├── variometreGauge  → gauge.setValue(e.detail.vario)
+      └── addGauge.js      → setRoll / setPitch / setHeading / setAltitude / setVario
+                             (flight indicators — setInterval 100 ms)
+```
 
 ---
 
-## Configuration avancée
+## Compatibilité par plateforme
 
-| Variable        | Fichier          | Description                          | Défaut  |
-|-----------------|------------------|--------------------------------------|---------|
-| `simulation`    | animGauges.js    | Mode de fonctionnement               | `true`  |
-| `USB_BAUD_RATE` | animGauges.js    | Vitesse série (bauds)                | `9600`  |
+| Source | Desktop Chrome/Edge | Electron | Android APK |
+|--------|---------------------|----------|-------------|
+| Simulation | ✅ | ✅ | ✅ |
+| WiFi | ✅ | ✅ | ✅ |
+| USB | ✅ Web Serial | ✅ Web Serial | ✅ Plugin Java |
+
+---
+
+## Configuration USB
+
+```ini
+[USB]
+BaudRate = 115200    ; doit correspondre au firmware du microcontrôleur
+```
+
+Le sketch `arduino/sendJson/sendJson.ino` utilise `BAUD_RATE 115200` par défaut.
