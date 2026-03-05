@@ -271,6 +271,128 @@ export class ConfigService {
         // Pour l'instant, on peut copier manuellement ou utiliser l'API File System Access
     }
 
+    // ---------- gauge configuration helpers (originally in scripts/gauge) ----------
+
+    /**
+     * Read the gauge list from config.ini fallback JSON block.
+     * @returns {Promise<Array>} gauge configurations
+     */
+    static async loadIniFallback() {
+        try {
+            const res = await fetch('../config/config.ini');
+            if (!res.ok) throw new Error('Unable to fetch config.ini: ' + res.status);
+            const text = await res.text();
+            // extract JSON block between markers
+            const start = text.indexOf('StartGauges');
+            const end = text.indexOf('EndGauges');
+            if (start === -1 || end === -1) {
+                return [];
+            }
+            const jsonText = text.substring(start + 'StartGauges'.length, end).trim();
+            let obj;
+            try {
+                obj = JSON.parse(jsonText);
+            } catch (e) {
+                console.warn('gauge JSON block malformed:', e);
+                obj = {};
+            }
+            if (!Array.isArray(obj.gauges)) {
+                return [];
+            }
+            return obj.gauges;
+        } catch (err) {
+            console.error('Error loading configuration from config.ini', err);
+            return [];
+        }
+    }
+
+    static async saveToIni(gaugeConfig) {
+        try {
+            const res = await fetch('/api/gauges', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gaugeConfig)
+            });
+            if (!res.ok) {
+                throw new Error('status ' + res.status);
+            }
+        } catch (err) {
+            console.error('Error saving gauge to config.ini', err);
+            alert('§ La sauvegarde sur le serveur a échoué. Un fichier config.ini vous sera proposé en téléchargement.\n' +
+                'Assurez-vous de lancer le service Node (`npm start`) ou copiez le contenu manuellement.');
+            this.exportIni();
+        }
+    }
+
+    static async updateInIni(id, gaugeConfig) {
+        try {
+            const res = await fetch('/api/gauges/' + encodeURIComponent(id), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gaugeConfig)
+            });
+            if (!res.ok) {
+                throw new Error('status ' + res.status);
+            }
+        } catch (err) {
+            console.error('Error updating gauge in config.ini', err);
+            alert('§ La mise à jour dans config.ini a échoué. Un fichier sera téléchargé pour sauvegarde manuelle.');
+            this.exportIni();
+        }
+    }
+
+    static async deleteFromIni(id) {
+        try {
+            const res = await fetch('/api/gauges/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            });
+            if (!res.ok) {
+                throw new Error('status ' + res.status);
+            }
+        } catch (err) {
+            console.error('Error deleting gauge from config.ini', err);
+            alert('§ Impossible de supprimer la jauge du fichier de configuration. Le téléchargement d’un config.ini à jour est proposé.');
+            this.exportIni();
+        }
+    }
+
+    static exportIni() {
+        // build gauges list from localStorage
+        const gauges = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!isNaN(parseInt(key, 10)) && key === String(parseInt(key, 10))) {
+                try {
+                    const g = JSON.parse(localStorage.getItem(key));
+                    g.id = key;
+                    gauges.push(g);
+                } catch { };
+            }
+        }
+        // fetch existing file to preserve other sections
+        fetch('../config/config.ini')
+            .then(r => r.text())
+            .then(text => {
+                const start = text.indexOf('StartGauges');
+                const end = text.indexOf('EndGauges');
+                let newText;
+                if (start !== -1 && end !== -1) {
+                    const before = text.slice(0, start + 'StartGauges'.length);
+                    const after = text.slice(end);
+                    newText = before + '\n' + JSON.stringify({ gauges }, null, 2) + '\n' + after;
+                } else {
+                    newText = text + '\n; ----- Gauges JSON fallback -----\n; StartGauges\n' +
+                        JSON.stringify({ gauges }, null, 2) + '\n; EndGauges\n';
+                }
+                const blob = new Blob([newText], { type: 'text/plain' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'config.ini';
+                a.click();
+            })
+            .catch(e => console.error('Unable to fetch config.ini for export', e));
+    }
+
     /**
      * Génère le contenu du fichier config.ini
      * @private
@@ -304,7 +426,18 @@ BaudRate = ${config.usb.baudRate}
     static async scanUSBPorts(baudRate = 115200, timeout = 3000) {
         // Vérifier si l'API Web Serial est disponible
         if (!('serial' in navigator)) {
-            throw new Error('L\'API Web Serial n\'est pas supportée par ce navigateur. Utilisez Chrome ou Edge.');
+            // peut être exécuté dans Electron/desktop -> utiliser un module Node
+            if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+                // dans le conteneur Electron, Node est accessible
+                // nous ne fournissons pas ici une implémentation complète,
+                // mais on peut suggérer à l'utilisateur d'installer
+                // un plugin (serialport) ou de gérer manuellement.
+                throw new Error('Web Serial non disponible dans Electron ; installez et ' +
+                    'utilisez un module Node (par exemple serialport) ou une ' +
+                    'implémentation native pour accéder aux ports série.');
+            }
+            throw new Error('L\'API Web Serial n\'est pas supportée par ce navigateur. ' +
+                'Utilisez Chrome ou Edge, ou lancez l\'application via Electron.');
         }
 
         try {

@@ -155,7 +155,281 @@ BaudRate = 115200
 - API JavaScript pour développeurs
 - Liste des fichiers modifiés
 
+## 📱 USB série natif Android — Plugin Capacitor (v1.3.0)
+
+### Problème résolu
+
+L'API `navigator.serial` (Web Serial API) n'est disponible que dans
+Chrome/Edge. Le WebView Android embarqué par Capacitor ne la supporte pas,
+rendant la connexion USB impossible dans l'APK.
+
+### Architecture
+
+```
+Android (câble USB-OTG)            Desktop (Chrome/Edge/Electron)
+        │                                       │
+UsbSerialPlugin.java                   navigator.serial
+        │  notifyListeners()            (Web Serial API)
+        ▼                                       │
+androidSerialBridge.js             usbReader._startReading()
+        │                                       │
+        └──────────────┬────────────────────────┘
+                       │
+              CustomEvent 'flightdata'
+                       │
+           Toutes les jauges ← wifiReader.js (WiFi inchangé)
+```
+
+### Bibliothèque Java — usb-serial-for-android
+
+`com.github.mik3y:usb-serial-for-android:3.8.1` (via JitPack).
+
+Puces supportées automatiquement :
+
+| Puce | vendor-id (hex) | vendor-id (décimal) | Produits courants |
+|------|-----------------|---------------------|-------------------|
+| CH340/CH341 | 0x1A86 | 6790 | Nano clones, ESP32 bon marché |
+| CP210x | 0x10C4 | 4292 | ESP32 DevKit officiel |
+| FTDI FT232 | 0x0403 | 1027 | Adaptateurs USB-série de qualité |
+| PL2303 | 0x067B | 1659 | Câbles USB-série génériques |
+| CDC/ACM | 0x2341 | 9025 | Arduino Uno / Leonardo (ATmega16U2) |
+
+### Fichiers créés / modifiés
+
+```
+android/
+├── build.gradle                         JitPack présent
+└── app/
+    ├── build.gradle                     + dépendance usb-serial-for-android:3.8.1
+    └── src/main/
+        ├── AndroidManifest.xml          + uses-feature usb.host
+        │                                + intent-filter USB_DEVICE_ATTACHED
+        ├── res/xml/device_filter.xml    [CRÉÉ] vendor-id USB-série courants
+        └── java/com/example/aerodb/
+            ├── MainActivity.java        + registerPlugin(UsbSerialPlugin)
+            └── UsbSerialPlugin.java     [CRÉÉ] plugin Capacitor natif
+src/utils/
+├── androidSerialBridge.js               [CRÉÉ] adaptateur JS → plugin natif
+└── usbReader.js                         [MODIFIÉ] délégation Android
+partial/gauge_page.html                  [MODIFIÉ] chargement bridge avant usbReader
+```
+
+### Plugin Java — UsbSerialPlugin.java
+
+Classe annotée `@CapacitorPlugin(name = "UsbSerial")`, enregistrée dans
+`MainActivity.java` via `registerPlugin()` avant `super.onCreate()`.
+
+**Méthodes JS** :
+
+| Méthode | Paramètres | Résultat |
+|---------|-----------|---------|
+| `getPorts()` | — | `{ ports: [{ deviceId, vendorId, productId, deviceName, driverName }] }` |
+| `open()` | `{ deviceId?, baudRate? }` | `void` — ouvre le port et démarre la lecture |
+| `close()` | — | `void` — ferme proprement |
+
+**Événements JS** :
+
+| Événement | Payload | Déclencheur |
+|-----------|---------|-------------|
+| `serialData` | `{ data: "<ligne JSON>" }` | Chaque ligne complète reçue |
+| `serialState` | `{ connected: bool, error?: string }` | Ouverture / perte / fermeture |
+
+La lecture est assurée par `SerialInputOutputManager` (thread dédié).
+Le plugin reconstitue les lignes avec un `StringBuilder` et émet un
+`serialData` par ligne terminée par `\n`.
+
+La **permission USB** est demandée via `UsbManager.requestPermission()` +
+`BroadcastReceiver` one-shot (RECEIVER_NOT_EXPORTED sur Android 13+).
+
+### Bridge JS — androidSerialBridge.js
+
+Chargé **avant** `usbReader.js` dans `gauge_page.html`.
+
+- Détecte `window.Capacitor.isNativePlatform()` au chargement du script.
+- Instancie `window.androidSerialBridge` uniquement sur Android natif.
+- Interface publique identique à `usbReader` : `connect()`, `disconnect()`, `isConnected`, `data`.
+- Chaque événement `serialData` reçu dispatche `CustomEvent('flightdata', { detail })` — exactement comme `usbReader._parseLine()`.
+- Sur desktop, le fichier se charge sans effet secondaire (`androidSerialBridge = null`).
+
+### Modifications de usbReader.js
+
+`connect()` et `disconnect()` vérifient `window.androidSerialBridge` :
+
+```js
+// Dans connect()
+if (window.androidSerialBridge) {
+    return window.androidSerialBridge.connect(baudRate);
+}
+// sinon : Web Serial API (code original inchangé)
+
+// Dans _tryAutoConnect()
+if (window.androidSerialBridge) {
+    await usbReader.connect(USB_BAUD_RATE);
+    return;
+}
+// sinon : navigator.serial.getPorts() (code original inchangé)
+```
+
+### WiFi — aucun changement
+
+`wifiReader.js` est intouché. WiFi et USB fonctionnent en parallèle sur
+toutes les plateformes, les deux sources émettant le même `'flightdata'`.
+
+---
+
+## 📱 USB série natif Android — Plugin Capacitor (v1.3.0)
+
+### Problème résolu
+
+L'API `navigator.serial` (Web Serial API) n'est disponible que dans
+Chrome/Edge. Le WebView Android embarqué par Capacitor ne la supporte pas,
+rendant la connexion USB impossible dans l'APK.
+
+### Architecture
+
+```
+Android (câble USB-OTG)            Desktop (Chrome/Edge/Electron)
+        │                                       │
+UsbSerialPlugin.java                   navigator.serial
+        │  notifyListeners()            (Web Serial API)
+        ▼                                       │
+androidSerialBridge.js             usbReader._startReading()
+        │                                       │
+        └──────────────┬────────────────────────┘
+                       │
+              CustomEvent 'flightdata'
+                       │
+           Toutes les jauges ← wifiReader.js (WiFi inchangé)
+```
+
+### Bibliothèque Java — usb-serial-for-android v3.8.1
+
+Puces supportées automatiquement :
+
+| Puce | vendor-id (hex) | vendor-id (décimal) | Produits courants |
+|------|-----------------|---------------------|-------------------|
+| CH340/CH341 | 0x1A86 | 6790 | Nano clones, ESP32 bon marché |
+| CP210x | 0x10C4 | 4292 | ESP32 DevKit officiel |
+| FTDI FT232 | 0x0403 | 1027 | Adaptateurs USB-série de qualité |
+| PL2303 | 0x067B | 1659 | Câbles USB-série génériques |
+| CDC/ACM | 0x2341 | 9025 | Arduino Uno / Leonardo |
+
+### Plugin Java — UsbSerialPlugin.java
+
+Méthodes exposées au JS via `Capacitor.Plugins.UsbSerial` :
+
+| Méthode | Description |
+|---------|-------------|
+| `getPorts()` | Liste les périphériques USB série détectés |
+| `open({ deviceId, baudRate })` | Ouvre le port et démarre la lecture (thread de fond) |
+| `close()` | Ferme proprement la connexion |
+
+Événements émis vers JS :
+
+| Événement | Payload | Déclencheur |
+|-----------|---------|-------------|
+| `serialData` | `{ data: "<ligne JSON>" }` | Chaque ligne complète reçue |
+| `serialState` | `{ connected: bool, error?: string }` | Changement d'état |
+
+La permission USB Android est demandée au runtime via `UsbManager.requestPermission()` + `BroadcastReceiver` one-shot.
+
+### Bridge JS — androidSerialBridge.js
+
+- Instancié **uniquement** si `window.Capacitor.isNativePlatform()` est vrai.
+- Même interface publique que `usbReader` : `connect()`, `disconnect()`, `isConnected`, `data`.
+- Chaque ligne reçue via `serialData` est parsée en JSON et dispatche `CustomEvent('flightdata')`.
+- Doit être chargé **avant** `usbReader.js` dans la page HTML.
+
+### Modifications de usbReader.js
+
+```js
+// connect() et disconnect() : détection de plateforme
+if (window.androidSerialBridge) {
+    return window.androidSerialBridge.connect(baudRate);
+}
+// sinon : Web Serial API (code inchangé)
+```
+
+### Compatibilité
+
+| Plateforme | USB | WiFi |
+|------------|-----|------|
+| Android (APK Capacitor) | ✅ plugin Java | ✅ inchangé |
+| Desktop Chrome/Edge | ✅ Web Serial API | ✅ inchangé |
+| Desktop Electron | ✅ Web Serial API | ✅ inchangé |
+
+### Fichiers créés / modifiés
+
+```
+android/app/build.gradle                     + usb-serial-for-android:3.8.1
+android/app/src/main/AndroidManifest.xml     + uses-feature + intent USB
+android/app/src/main/res/xml/device_filter.xml  [CRÉÉ]
+android/app/.../UsbSerialPlugin.java         [CRÉÉ]
+android/app/.../MainActivity.java            + registerPlugin
+src/utils/androidSerialBridge.js             [CRÉÉ]
+src/utils/usbReader.js                       + délégation Android
+partial/gauge_page.html                      + chargement bridge
+docs/packaging.md                            [MIS À JOUR]
+```
+
+---
+
 ## 🎯 Fonctionnalités implémentées
+
+### 📦 Packaging multi-plateforme (nouveau)
+
+- Ajout de scripts et fichiers permettant de générer des builds desktop
+  (Electron) et mobile (Capacitor). Voir `README.md` section "Packaging &
+  déploiement".
+- `electron-main.js` / `electron-preload.js` supportent l'exécution du
+  serveur de configuration interne et l'accès à Node (ports USB/WiFi) pour
+  la version desktop.
+- `scripts/syncToCapacitor.js` permet de préparer automatiquement l'arborescence
+  web pour la copie dans le dossier `www/` de Capacitor.
+- `capacitor.config.json` configuré pour Android/iOS.
+- `package.json` enrichi :
+  - nouvelles dépendances (`electron`, `electron-builder`, `fs-extra`),
+  - scripts `sync-www`, `electron`, `dist-win`, `dist-all`.
+- Documentation mise à jour avec modes opératoires Android & Windows,
+  checklists de validation et remarques sur l'usage de plugins/Node.
+
+### 📁 Structure des fichiers créés/modifiés
+
+```text
+aeroDb/
+├── config/
+│   └── config.ini                        [MODIFIÉ] Structure mise à jour
+├── docs/
+│   ├── configuration-guide.md            [CRÉÉ] Guide utilisateur complet
+│   └── implementation-summary.md         [MIS À JOUR] ajout packaging
+├── scripts/
+│   ├── configManager.js                  [MODIFIÉ]
+│   ├── syncToCapacitor.js                [CRÉÉ] copie assets vers www/
+│   └── ...
+├── partial/
+│   └── gauge_page.html                   [MODIFIÉ] import ConfigService
+├── src/
+│   ├── gauge/                            [MODIFIÉ] save/load/ConfigService
+│   ├── services/ConfigService.js         [MODIFIÉ] INI fallback + export
+│   └── ...
+├── electron-main.js                      [CRÉÉ] entry pour Electron
+├── electron-preload.js                   [CRÉÉ] contexte isolé pour Electron
+├── package.json                          [MIS À JOUR] additions pour packaging
+├── capacitor.config.json                 [CRÉÉ] configuration Capacitor
+└── README.md                             [MIS À JOUR] instructions packaging
+```
+
+### 🔄 Serveur local vs conteneur
+
+- **Serveur local** (`npm start` ou via Electron) est requis pour écrire
+  directement dans `config/config.ini`. Sans lui, les sauvegardes restent
+  dans `localStorage` et vous êtes invité à télécharger un fichier via
+  `ConfigService.exportIni()`.
+- **Capacitor/Android** ne fournit pas de serveur : la persistance vers
+  fichier est impossible, l'utilisateur doit manuellement importer/exporter
+  la configuration. Vers un futur, un service cloud pourrait être ajouté.
+
+---
 
 ### ✅ Toggle bouton WiFi / USB / Simulation
 - Radio buttons dans la modale

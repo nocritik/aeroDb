@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.aerodb",
+  "appName": "aeroDb",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

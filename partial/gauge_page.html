@@ -19,6 +19,10 @@
         <script>var CANV_GAUGE_FONTS_PATH = '../css/fonts'</script>
         <script src="../scripts/gauge/components/gauge.js" type="text/javascript"></script>
         <script src="../scripts/gauge/creatGradu.js" type="text/javascript"></script>
+        <!-- Bridge Android USB série — doit être chargé AVANT usbReader.js -->
+        <script src="../src/utils/androidSerialBridge.js" type="text/javascript"></script>
+        <!-- Bridge Android USB (doit être chargé AVANT usbReader.js) -->
+        <script src="../src/utils/androidSerialBridge.js" type="text/javascript"></script>
         <script src="../src/utils/usbReader.js" type="text/javascript"></script>
         <script src="../src/utils/wifiReader.js" type="text/javascript"></script>
         <script src="../scripts/animGauges.js" type="text/javascript"></script>
@@ -249,7 +253,7 @@
         <script src="../scripts/gauge/components/jquery.flightindicators.js" type="text/javascript"></script>
         <script src="../css/prism/prism.js" type="text/javascript"></script>
 
-        <script src="../scripts/event.js" type="text/javascript"></script>
+        <script src="../scripts/event.js" type="module"></script>
         
         <!-- Configuration management -->
         <script type="module">

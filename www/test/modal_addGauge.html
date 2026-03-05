@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+       
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="../css/style.css" rel="stylesheet" type="text/css"/>        
+        <link href="../css/materialize/materialize.min.css" rel="stylesheet" type="text/css"/>
+        <script src="../scripts/jquery-1.12.3.min.js" type="text/javascript"></script>
+        <script src="../scripts/materialize/materialize.min.js" type="text/javascript"></script>
+        
+        <!--link href="../css/fonts/iconfont/material-icons.css" rel="stylesheet" type="text/css"/-->
+        
+    </head>
+    <body>
+        
+   <!--a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a-->
+   <a class="material-icons waves-effect waves-light  modal-trigger" href="#modal1">add_circle</a> 
+   
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>Modal Header</h4>
+      <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+       <script>
+        $(document).ready(function(){
+            // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+            $('.modal-trigger').leanModal();
+          });
+      </script>
+        
+        
+    </body>
+</html>

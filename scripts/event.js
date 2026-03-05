@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import { ConfigService } from "../src/services/ConfigService.js";
 
 
 //******* Ajout instrument : appel modal ***********
@@ -55,29 +56,40 @@ TouchSpinValue("arcRougeMax", "Max");
 //****************************************************************
 //
 //***********************boutton Save*******************************
-$("#btnSave").click(function () {
+$("#btnSave").click(async function () {
     var modalStatut = $(this).attr("data-info");
     var gaugeId = $("#idGauge").val(); //stock id de l'element selectionné dans input caché
-//debugger
-    switch (modalStatut) {
-        case "save":
-            saveNewGauge();
-            break;
-        case "modif":
-            saveModifGauge(gaugeId);
-            break;
-        default:
-            alert("Erreur d'enregistrement !!");
-    };
-    // CORRECTION: Utiliser reload() au lieu de $("body").load() pour recharger les modules ES6
+    // debugger
+    try {
+        switch (modalStatut) {
+            case "save":
+                await saveNewGauge();
+                break;
+            case "modif":
+                await saveModifGauge(gaugeId);
+                break;
+            default:
+                alert("Erreur d'enregistrement !!");
+        };
+    } catch (err) {
+        console.error('Erreur lors de la sauvegarde', err);
+        alert('Impossible de sauvegarder la configuration');
+    }
+
+    // reload after the async operation completes
     window.location.reload();
 });
 //****************************************************************
 
 //***********************boutton Save*******************************
-$("#btnSuppr").click(function () {
+$("#btnSuppr").click(async function () {
     var gaugeId = $("#idGauge").val(); //recupere id de l'element selectionné dans input caché
     localStorage.removeItem(gaugeId);
+    try {
+        await ConfigService.deleteFromIni(gaugeId);
+    } catch (e) {
+        console.warn('Impossible de supprimer la configuration sur le serveur', e);
+    }
     // CORRECTION: Utiliser reload() au lieu de $("body").load() pour recharger les modules ES6
     window.location.reload();
 });
@@ -104,7 +116,7 @@ $(function () {
 $(function () {
     $("#btn_map").click(function () {
         window.location = "nav_page.html";
-        
+
     });
 });
 //****************************************************************  
@@ -116,7 +128,7 @@ $(function () {
 });
 //****************************************************************
 // Code spécifique à la page de navigation (initMap n'existe que sur nav_page.html)
-$(document).ready(function() {
+$(document).ready(function () {
     // Vérifier si initMap existe (seulement sur la page de navigation)
     if (typeof initMap === 'function') {
         var defaultLong = 43.7079321;

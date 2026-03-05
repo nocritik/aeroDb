@@ -1,0 +1,24 @@
+function displayRes() {
+        var srceRes = $.ajax({
+            url: "scripts/geojsonResSrce.php",
+            type: "POST",
+            data: queryParameters,
+            dataType: "json",
+            jsonpCallback: 'getJson',
+            success: function (response) {
+                L.geoJson(response, {
+                    style: resStyle,
+                    onEachFeature: function (feature, layer) {
+                        var popupContent = "<p>" + feature.properties.nom_resv + "</p><br>" + feature.properties.milmaj_reg + "</p>";
+                        popupOptions = {maxWidth: 200};
+                        layer.bindPopup(popupContent, popupOptions);
+                    }
+                }).addTo(reservoirs);
+
+            }
+        });
+
+        reservoirs.clearLayers();
+
+        reservoirs.addTo(mymap);
+}

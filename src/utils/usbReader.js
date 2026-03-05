@@ -1,6 +1,10 @@
 /*
- * Lecteur de données USB (Web Serial API)
+ * Lecteur de données USB (Web Serial API — desktop)
  * Compatible : Chrome 89+, Edge 89+
+ *
+ * Sur Android (Capacitor) ce fichier délègue automatiquement à
+ * androidSerialBridge (androidSerialBridge.js) qui utilise le plugin
+ * natif UsbSerialPlugin.java à la place de navigator.serial.
  *
  * Lit des trames JSON ligne par ligne depuis un port série USB.
  * À chaque trame reçue, dispatche un CustomEvent 'flightdata' que tous les
@@ -17,8 +21,9 @@
  *   → voir docs/usb-json-protocol.md pour la liste complète des champs
  *
  * Sources de données alternatives (même événement 'flightdata') :
- *   usbSimulator.js  — simulateur JSON intégré
- *   wifiReader.js    — futur lecteur WiFi/WebSocket
+ *   androidSerialBridge.js — bridge natif Android (Capacitor)
+ *   usbSimulator.js        — simulateur JSON intégré
+ *   wifiReader.js          — lecteur WiFi/WebSocket
  */
 
 /** Vitesse de communication en bauds — à modifier selon le firmware du microcontrôleur */
@@ -31,6 +36,9 @@ var USB_BAUD_RATE = 9600;
 /**
  * Lit des trames JSON ligne par ligne depuis un port USB/série.
  * Dispatche un CustomEvent 'flightdata' à chaque trame reçue.
+ *
+ * Sur Android Capacitor, connect() et disconnect() délèguent à
+ * window.androidSerialBridge et gardent this._connected en cohérence.
  */
 class UsbFlightDataReader {
     constructor() {
@@ -50,14 +58,17 @@ class UsbFlightDataReader {
 
     /**
      * Ouvre un port déjà autorisé sans geste utilisateur (auto-reconnexion).
+     * Desktop uniquement — sur Android c'est le bridge qui gère la reconnexion.
      * @param {SerialPort} port
      * @param {number} [baudRate=9600]
      * @returns {Promise<boolean>}
      */
-    async connectToExistingPort(port, baudRate = 9600) {
+    async connectToExistingPort(port, baudRate) {
+        baudRate = baudRate || 9600;
+        // Sur Android ce chemin n'est jamais emprunté (_tryAutoConnect le court-circuite)
         try {
             this._port = port;
-            await this._port.open({ baudRate });
+            await this._port.open({ baudRate: baudRate });
             this._connected = true;
             console.info('[USB] Auto-reconnecté à ' + baudRate + ' baud.');
             _hideConnectionBanner();
@@ -73,17 +84,31 @@ class UsbFlightDataReader {
 
     /**
      * Demande à l'utilisateur de choisir un port, puis démarre la lecture.
+     * Sur Android Capacitor, délègue à androidSerialBridge.
      * @param {number} [baudRate=9600]
      * @returns {Promise<boolean>}
      */
-    async connect(baudRate = 9600) {
+    async connect(baudRate) {
+        baudRate = baudRate || 9600;
+
+        // ── Android Capacitor → plugin natif USB série ──────────────────────
+        if (window.androidSerialBridge) {
+            var ok = await window.androidSerialBridge.connect(baudRate);
+            // Synchroniser _connected pour que les composants qui lisent
+            // usbReader.isConnected obtiennent le bon état
+            this._connected = ok;
+            this._data = window.androidSerialBridge.data;
+            return ok;
+        }
+
+        // ── Desktop Chrome / Edge → Web Serial API ──────────────────────────
         if (!('serial' in navigator)) {
             console.error('[USB] Web Serial API non supportée. Utilisez Chrome ou Edge 89+.');
             return false;
         }
         try {
             this._port = await navigator.serial.requestPort();
-            await this._port.open({ baudRate });
+            await this._port.open({ baudRate: baudRate });
             this._connected = true;
             console.info('[USB] Connecté à ' + baudRate + ' baud.');
             _hideConnectionBanner();
@@ -96,8 +121,19 @@ class UsbFlightDataReader {
         }
     }
 
-    /** Ferme proprement la connexion. */
+    /**
+     * Ferme proprement la connexion.
+     * Sur Android Capacitor, délègue à androidSerialBridge.
+     */
     async disconnect() {
+        // ── Android Capacitor ───────────────────────────────────────────────
+        if (window.androidSerialBridge) {
+            await window.androidSerialBridge.disconnect();
+            this._connected = false;
+            return;
+        }
+
+        // ── Desktop ─────────────────────────────────────────────────────────
         this._connected = false;
         try {
             if (this._reader) {
@@ -115,7 +151,7 @@ class UsbFlightDataReader {
         }
     }
 
-    /** Boucle de lecture asynchrone en arrière-plan. */
+    /** Boucle de lecture asynchrone en arrière-plan (desktop uniquement). */
     async _startReading() {
         try {
             while (this._connected && this._port.readable) {
@@ -197,19 +233,36 @@ function _hideConnectionBanner() {
 
 /**
  * Tentative d'auto-connexion au chargement de la page :
- *  - Port déjà autorisé → connexion silencieuse.
- *  - Sinon → bannière + écoute du premier clic/touche.
+ *
+ * Android Capacitor :
+ *   → Délègue à androidSerialBridge.connect() ; si aucun périphérique n'est
+ *     branché, une bannière invitant à brancher le câble USB-OTG est affichée.
+ *
+ * Desktop Chrome / Edge :
+ *   → Port déjà autorisé → connexion silencieuse.
+ *   → Sinon → bannière + écoute du premier clic/touche.
  */
 async function _tryAutoConnect() {
+
+    // ── Android Capacitor ───────────────────────────────────────────────────
+    if (window.androidSerialBridge) {
+        console.info('[USB-Android] Tentative d\'auto-connexion USB…');
+        await usbReader.connect(USB_BAUD_RATE);
+        return;
+    }
+
+    // ── Desktop → Web Serial API ────────────────────────────────────────────
     if (!('serial' in navigator)) {
         console.warn('[USB] Web Serial API non disponible (Chrome/Edge 89+ requis).');
         return;
     }
+
     var ports = await navigator.serial.getPorts();
     if (ports.length > 0) {
         var success = await usbReader.connectToExistingPort(ports[0], USB_BAUD_RATE);
         if (success) return;
     }
+
     _showConnectionBanner('Cliquez n\'importe où pour connecter le périphérique USB');
     var _handler = async function () {
         document.removeEventListener('click',   _handler, true);
