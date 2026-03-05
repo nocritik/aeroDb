@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8' />
+    <title>Enzo JS</title>
+    <link rel="stylesheet" href="css/enzo.css" type="text/css" charset="utf-8" />
+    <script type='text/javascript' src='js/enzo.js'></script>
+    <script type='application/javascript'>        
+        var lcd;
+        var simpleGauge;
+        var oneEightyGauge;
+        var avGauge;
+        var led;
+        var gauge;
+        var sevenSegment;
+        var sixteenSegment;
+        var flatGauge;
+        function init() {
+            lcd = enzo.Lcd({
+                id                     : 'control1', 
+                parentId               : 'lcd', 
+                upperCenterText        : 'Lcd control',
+                lowerRightText         : 'enzojs',
+                threshold              : 23,
+                trendVisible           : true,
+                alarmVisible           : true,
+                unitString             : '\u00B0C',
+                upperLeftTextVisible   : true,
+                upperRightTextVisible  : true,
+                lowerRightTextVisible  : true,
+                upperCenterTextVisible : true,
+                lowerCenterTextVisible : true,
+                lowerCenterText        : 'Hello',
+                unitVisible            : true,
+                thresholdVisible       : true,
+                signalVisible          : true,
+                signalStrength         : 0.5,
+                design                 : 'blue-gray',
+                crystalEffectVisible   : false,
+                foregroundShadowEnabled: false,
+                width                  : 300,
+                height                 : 107,
+                animated               : true,
+                scalable               : false
+            });
+            
+            simpleGauge = new enzo.SimpleGauge({
+              id                : 'control2',
+              parentId          : 'simpleGauge',
+              size              : 200,
+              scalable          : false,
+              animated          : true,
+              duration          : 3,
+              decimals          : 0,
+              title             : 'Title',
+              unit              : 'C',
+              sectionIconVisible: true,
+              sections: [new enzo.Section({start:'0', stop:'10', color:'#97b329'}),
+                         new enzo.Section({start:'10', stop:'20', color:'#aacc2a'}),
+                         new enzo.Section({start:'20', stop:'30', color:'#d4ea35'}),
+                         new enzo.Section({start:'30', stop:'40', color:'#f2de31'}),
+                         new enzo.Section({start:'40', stop:'50', color:'#fccb2e'}),
+                         new enzo.Section({start:'50', stop:'60', color:'#f3a429'}),
+                         new enzo.Section({start:'60', stop:'70', color:'#f18c23'}),
+                         new enzo.Section({start:'70', stop:'80', color:'#f65821'}),
+                         new enzo.Section({start:'80', stop:'90', color:'#f3351f'}),
+                         new enzo.Section({start:'90', stop:'100', color:'#f61319'})]
+            });
+
+            oneEightyGauge = new enzo.OneEightyGauge({
+                id             : 'control3',
+                parentId       : 'oneEightyGauge',
+                width          : 200,
+                height         : 148,
+                scalable       : false,
+                animated       : true,
+                duration       : 3,
+                minValue       : 0,
+                maxValue       : 100,
+                decimals       : 0,
+                title          : "Office",
+                unit           : "°C",
+                valueColor     : 'white',
+                titleColor     : 'white',
+                unitColor      : 'white',
+                minValueColor  : 'white',
+                maxValueColor  : 'white',
+                dynamicBarColor: true,
+                stops          : [{ stop: new enzo.Stop({offset: 0.0, color: new enzo.Color({red:0, green:0, blue:255})}) },
+                                  { stop: new enzo.Stop({offset: 1.0, color: new enzo.Color({red:255, green:0, blue:0})})}]
+            });
+
+            avGauge = new enzo.AvGauge({
+                id             : 'control4',
+                parentId       : 'avGauge',
+                size           : 200,
+                scalable       : false,
+                animated       : true,
+                duration       : 1.5,
+                minValue       : 0,
+                maxValue       : 100,
+                shadowEnabled  : true,
+                decimals       : 0,
+                title          : "Light",
+                dynamicBarColor: true,
+                outerStops     : [{ stop: new enzo.Stop({offset: 0.0, color: new enzo.Color({red:0, green:0, blue:255})}) },
+                                  { stop: new enzo.Stop({offset: 0.25, color: new enzo.Color({red:0, green:255, blue:255})}) },
+                                  { stop: new enzo.Stop({offset: 0.5, color: new enzo.Color({red:0, green:255, blue:0})}) },
+                                  { stop: new enzo.Stop({offset: 0.75, color: new enzo.Color({red:255, green:255, blue:0})}) },
+                                  { stop: new enzo.Stop({offset: 1.0, color: new enzo.Color({red:255, green:0, blue:0})})}],
+                innerStops     : [{ stop: new enzo.Stop({offset: 0.0, color: new enzo.Color({red:0, green:0, blue:255})}) },
+                                  { stop: new enzo.Stop({offset: 0.25, color: new enzo.Color({red:0, green:255, blue:255})}) },
+                                  { stop: new enzo.Stop({offset: 0.5, color: new enzo.Color({red:0, green:255, blue:0})}) },
+                                  { stop: new enzo.Stop({offset: 0.75, color: new enzo.Color({red:255, green:255, blue:0})}) },
+                                  { stop: new enzo.Stop({offset: 1.0, color: new enzo.Color({red:255, green:0, blue:0})})}]
+            });
+
+            led = new enzo.Led({
+              id          : 'control5',
+              parentId    : 'led',
+              size        : 36,              
+              scalable    : false,
+              frameVisible: true,
+              //on        : false,
+              color       : "#ff0000"
+            });
+
+            gauge = new enzo.Gauge({
+                id                : 'control6',
+                parentId          : 'gauge',
+                size              : 300,
+                scalable          : false,
+                animated          : true,
+                duration          : 3,
+                decimals          : 0,
+                title             : 'test',
+                unit              : 'C°',
+                sections: [new enzo.Section({start:'0', stop:'10', color:'#97b329'}),
+                           new enzo.Section({start:'10', stop:'20', color:'#aacc2a'}),
+                           new enzo.Section({start:'20', stop:'30', color:'#d4ea35'}),
+                           new enzo.Section({start:'30', stop:'40', color:'#f2de31'}),
+                           new enzo.Section({start:'40', stop:'50', color:'#fccb2e'}),
+                           new enzo.Section({start:'50', stop:'60', color:'#f3a429'}),
+                           new enzo.Section({start:'60', stop:'70', color:'#f18c23'}),
+                           new enzo.Section({start:'70', stop:'80', color:'#f65821'}),
+                           new enzo.Section({start:'80', stop:'90', color:'#f3351f'}),
+                           new enzo.Section({start:'90', stop:'100', color:'#f61319'})],
+                areas: [new enzo.Section({start:'70', stop:'80', color:'#f65821'}),
+                        new enzo.Section({start:'80', stop:'90', color:'#f3351f'}),
+                        new enzo.Section({start:'90', stop:'100', color:'#f61319'})],
+                markers: [new enzo.Marker({value:'45', text:'test', color:'blue'})]
+        });
+
+            sevenSegment = new enzo.SevenSegment({
+                id          : 'control7',
+                parentId    : 'sevenSegment',
+                width       : 100,
+                //height      : 36,
+                scalable    : false,
+                char        : '1',
+                color       : "#00ffff"
+            });
+
+            sixteenSegment = new enzo.SixteenSegment({
+                id          : 'control8',
+                parentId    : 'sixteenSegment',
+                width       : 100,
+                //height      : 36,
+                scalable    : false,
+                char        : 'G',
+                color       : "#ff00ff",
+                glow        : true
+            });
+
+            flatGauge = new enzo.FlatGauge({
+                id             : 'control9',
+                parentId       : 'flatGauge',
+                size           : 200,
+                scalable       : false,
+                animated       : true,
+                duration       : 1.5,
+                minValue       : 0,
+                maxValue       : 100,
+                shadowEnabled  : true,
+                decimals       : 0,
+                title          : "Temperature",
+                unit           : "C",
+                dynamicBarColor: false
+            });
+
+            setInterval(function() {
+                lcd.setValue(Math.random() * 100);
+                simpleGauge.setValue(Math.random() * 100);
+                oneEightyGauge.setValue(Math.random() * 100);
+                avGauge.setOuterValue(Math.random() * 100);
+                avGauge.setInnerValue(Math.random() * 100);
+                gauge.setValue(Math.random() * 100);
+                flatGauge.setValue(Math.random() * 100);
+            }, 5000);
+            setInterval(function() {
+                led.setOn(!led.isOn());                
+            }, 500);
+            setInterval(function() {
+                sevenSegment.setCharacter((Math.random() * 9).toFixed(0) + '');
+                sixteenSegment.setCharacter(String.fromCharCode((Math.random() * 48 + 42).toFixed(0)));
+            }, 1000);
+        }
+    </script>
+</head>
+<body onload='init()' bgcolor="#222222">
+<table>
+  <tr>
+    <td><div id='lcd' style='padding:0px;'></div></td>
+    <td><div id='simpleGauge' style='padding:0px;'></div></td>
+    <td><div id='oneEightyGauge' style='padding:0px;'></div></td>
+    <td><div id='flatGauge' style='padding:0px;'></div></td>
+  </tr>
+  <tr>
+    <td><div id='avGauge' style='padding:0px;'></div></td>
+    <td><div id='led' style='padding:0px;'></div></td>
+    <td><div id='gauge' style='padding:0px;'></div></td>
+  </tr>
+  <tr>
+    <td><div id='sevenSegment' style='padding:0px;'></div></td>
+    <td><div id='sixteenSegment' style='padding:0px;'></div></td>
+  </tr>
+</table>
+</body>
+</html>

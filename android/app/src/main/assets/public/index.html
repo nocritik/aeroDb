@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>HOME PAGE</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="css/bootstrap/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.css" rel="stylesheet" type="text/css"/>
+    
+    <script src="src/utils/jquery-1.12.3.min.js" type="text/javascript"></script>
+    <script src="css/bootstrap-touchspin-master/dist/jquery.bootstrap-touchspin.min.js" type="text/javascript"></script>
+    <script src="scripts/boostrap/bootstrap.min.js" type="text/javascript"></script>    
+    
+    
+
+</head>
+<body>
+    <h1>Outils d'aide à la navigation</h1>
+     <div class="container">
+        <div class="row">
+            <div  class="btn_class_hover menu col-lg-4  col-md-5 col-sm-7 col-xs-8" role="group">
+                <a class="btn btn-default btn-block" href="partial/gauge_page.html" role="button">INSTRUMENTS<span class="fa fa-tachometer pull-left"></span></a>
+                <a class="btn btn-default btn-block" href="partial/nav_page.html" role="button">NAVIGATION<span class="fa fa-map pull-left"></span></a>
+                <a class="btn btn-default btn-block" href="#" data-toggle="modal" data-target="#configModal" role="button">CONFIGURATION<span class="fa fa-cogs pull-left"></span></a>
+                <a class="btn btn-default btn-block" href="#" role="button">MISE A JOUR<span class="fa fa-download pull-left"></span></a>
+                <a class="btn btn-default btn-block" href="#" role="button">QUITTER<span class="fa fa-power-off pull-left"></span></a>        
+            </div>
+        </div> 
+    </div>
+
+    <!-- Modal Configuration -->
+    <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="configModalLabel">
+                        <i class="fa fa-cogs"></i> Configuration AeroDb
+                    </h4>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        
+                        <!-- ENVIRONNEMENT -->
+                        <div class="form-group">
+                            <h4><i class="fa fa-wrench"></i> Environnement</h4>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="radio" name="environment" value="dev" autocomplete="off"> 
+                                    <i class="fa fa-flask"></i> Développement
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" name="environment" value="prod" autocomplete="off"> 
+                                    <i class="fa fa-rocket"></i> Production
+                                </label>
+                            </div>
+                            <div id="environmentPreview" class="mt-2" style="margin-top: 15px;"></div>
+                        </div>
+
+                        <hr>
+
+                        <!-- SOURCE DE DONNÉES -->
+                        <div class="form-group">
+                            <h4><i class="fa fa-database"></i> Source de données</h4>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="radio" name="dataSource" value="simulation" autocomplete="off"> 
+                                    <i class="fa fa-gamepad"></i> Simulation
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" name="dataSource" value="wifi" autocomplete="off"> 
+                                    <i class="fa fa-wifi"></i> WiFi
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" name="dataSource" value="usb" autocomplete="off"> 
+                                    <i class="fa fa-usb"></i> USB
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- CONFIGURATION WIFI -->
+                        <div id="wifiConfigSection" style="display: none;">
+                            <h4><i class="fa fa-wifi"></i> Configuration WiFi</h4>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="wifiHost">Adresse IP / Hostname</label>
+                                        <input type="text" class="form-control" id="wifiHost" 
+                                               placeholder="192.168.4.1" value="192.168.4.1">
+                                        <small class="form-text text-muted">
+                                            Adresse IP du microcontrôleur (ESP32/ESP8266)
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="wifiPort">Port WebSocket</label>
+                                        <input type="number" class="form-control" id="wifiPort" 
+                                               placeholder="81" value="81">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONFIGURATION USB -->
+                        <div id="usbConfigSection" style="display: none;">
+                            <h4><i class="fa fa-usb"></i> Configuration USB</h4>
+                            
+                            <!-- Bouton de scan -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-primary" id="btnScanUSB">
+                                            <i class="fa fa-search"></i> Scanner les ports USB
+                                        </button>
+                                        <button type="button" class="btn btn-default" id="btnScanUSB-loading" style="display:none;" disabled>
+                                            <i class="fa fa-spinner fa-spin"></i> Scan en cours...
+                                        </button>
+                                        <small class="form-text text-muted" style="display:block; margin-top:8px;">
+                                            Détecte automatiquement le port série envoyant des données JSON
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Zone de résultat du scan -->
+                            <div id="usbScanResult" style="display: none; margin-bottom: 15px;">
+                                <!-- Rempli dynamiquement par JavaScript -->
+                            </div>
+
+                            <!-- Configuration manuelle -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="usbPort">Port série</label>
+                                        <input type="text" class="form-control" id="usbPort" 
+                                               placeholder="COM3" value="COM3">
+                                        <small class="form-text text-muted">
+                                            Windows: COM3, Linux: /dev/ttyUSB0
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="usbBaudRate">Débit (baud rate)</label>
+                                        <select class="form-control" id="usbBaudRate">
+                                            <option value="9600">9600</option>
+                                            <option value="19200">19200</option>
+                                            <option value="38400">38400</option>
+                                            <option value="57600">57600</option>
+                                            <option value="115200" selected>115200</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning pull-left" id="btnResetConfig">
+                        <i class="fa fa-refresh"></i> Réinitialiser
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Annuler
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnSaveConfig">
+                        <i class="fa fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+      
+    <script src="scripts/event.js" type="text/javascript"></script>
+    <script type="module">
+        // Charger la configuration au démarrage
+        import { ConfigService } from './src/services/ConfigService.js';
+        
+        // Initialiser la configuration depuis config.ini au premier lancement
+        ConfigService.initialize().then(config => {
+            console.info('[AeroDb] Configuration initialisée:', config);
+        }).catch(error => {
+            console.error('[AeroDb] Erreur initialisation configuration:', error);
+        });
+    </script>
+    <script type="module" src="scripts/configManager.js"></script>
+</body>
+</html>
