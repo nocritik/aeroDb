@@ -26,6 +26,7 @@ par ligne, terminée par un caractère saut de ligne `\n`.
   "altitude": 1500,
   "pressure": 1013,
   "turnCoordinator": 0,
+  "slip": 0.0,
   "variometer": 0.5,
   "compass": 245,
   "speed": 135,
@@ -60,7 +61,8 @@ par ligne, terminée par un caractère saut de ligne `\n`.
 | `heading`        | Cap magnétique                           | degrés     | 0 … 360        | Conservateur de cap            |
 | `altitude`       | Altitude barométrique                    | pieds (ft) | 0 … 15 000     | Altimètre                      |
 | `pressure`       | Calage altimétrique (QNH)                | hPa        | 950 … 1 050    | Altimètre                      |
-| `turnCoordinator`| Taux de virage / inclinaison             | degrés     | −30 … +30      | Coordinateur de virage (bille) |
+| `turnCoordinator`| Taux de virage / inclinaison de l'avion  | degrés     | −30 … +30      | Coordinateur de virage         |
+| `slip`           | Dérapage latéral — bille d'inclinomètre  | normalisé  | −1 … +1        | Bille (0=centré, ±1=plein bord)|
 | `variometer`     | Taux de montée/descente                  | m/s        | −2 … +2        | Variomètre (indicateur de vol) |
 | `compass`        | Cap compas                               | degrés     | 0 … 365        | Compas (jauge canvas)          |
 | `speed`          | Vitesse anémométrique                    | Km/h       | 0 … 300        | Anémomètre (jauge canvas)      |
@@ -102,10 +104,10 @@ Utile pour valider l'ensemble de la chaîne (port USB → jauges) sans capteur r
 
 ```
 Instruments couverts : roll, pitch, heading, compass, altitude, pressure,
-                       turnCoordinator, variometer, vario, speed, rpm,
+                       turnCoordinator, slip, variometer, vario, speed, rpm,
                        water, waterL, waterR, cht, chtL, chtR,
                        egt, egtL, egtR, fuel, fuelL, fuelR
-Fréquence  : 2 Hz (SEND_INTERVAL_MS = 500 ms, configurable)
+Fréquence  : 5 Hz (SEND_INTERVAL_MS = 200 ms, configurable)
 Baud rate  : 115 200 (BAUD_RATE — idem config.ini)
 Matériel   : Arduino Nano/Uno (CH340, ATmega16U2) ou ESP32
 ```

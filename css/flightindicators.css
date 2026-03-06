@@ -47,6 +47,33 @@ div.instrument.turn_coordinator div.turn {
   transform: rotate(0deg);
   transition: transform 250ms linear;
 }
+
+/* Bille d'inclinomètre (slip/skid indicator) */
+/* Le container est transparent : le tube est dessiné par le SVG */
+div.instrument.turn_coordinator div.slip-container {
+  position: absolute;
+  top: 57%;    /* aligne avec le tube du SVG */
+  left: 28%;
+  width: 45%;
+  height: 14%;
+  background: transparent;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 5;
+}
+
+div.instrument.turn_coordinator div.slip-ball {
+  position: absolute;
+  width: 14%;
+  height:50%; /* sphère ~12px dans un tube de 28px */
+  top: 30%;    /* centre bille = top + hauteur/2 = 30+21.5 = 51.5% = centre du tube */
+  left: 43.5%;
+  background: radial-gradient(circle at 35% 28%, #909090, #1a1a1a 70%);
+  border-radius: 50%;
+  transition: left 250ms linear, top 250ms linear;
+  z-index: 8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
 div.instrument.speed div.airspeed {
   transform: rotate(90deg);
   transition: transform 250ms linear;

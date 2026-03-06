@@ -56,6 +56,8 @@ class JsonSimulator {
         f.turnCoordinator = Math.round((20 * Math.sin(t / 4) + noise(3)) * 10) / 10;
         f.variometer = Math.round((1.5 * Math.sin(t / 7) + noise(0.3)) * 10) / 10;
         f.vario = Math.round((30 * Math.sin(t / 7) + noise(5)) * 10) / 10;
+        // Bille : -1.0 (gauche) à +1.0 (droite), 0 = vol coordonné
+        f.slip = Math.round((Math.sin(t / 6 + 2.1) + noise(0.1)) * 100) / 100;
 
         // --- Vitesse / régime moteur ---
         f.speed = Math.round(130 + 20 * Math.sin(t / 10) + noise(5));

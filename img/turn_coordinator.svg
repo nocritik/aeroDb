@@ -9,8 +9,9 @@
    version="1.1"
    width="537.94183"
    height="539.90863"
+   viewBox="0 0 537.94183 539.90863"
+   preserveAspectRatio="xMidYMid meet"
    id="svg6534"
-   preserveAspectRatio="X200Y200 meet"
    >
   <defs
      id="defs6536">
@@ -214,16 +215,16 @@
        d="m 462.49999,391.78574 a 20.714285,33.516418 0 1 1 -41.42857,0 20.714285,33.516418 0 1 1 41.42857,0 z"
        transform="matrix(1.0344828,0,0,0.89344242,-15.393402,42.833118)"
        id="path7384"
-       style="fill:#000000;fill-opacity:0.57213931;stroke:none;filter:url(#filter7390)" />
+       style="fill:#000000;fill-opacity:0;stroke:none;filter:url(#filter7390)" />
     <path
        d="m 558.84631,370.52822 c -47.33809,11.3318 -95.59887,14.35943 -144.50945,11.53893"
        id="path7256"
-       style="opacity:0.7;fill:none;stroke:#fbf7d3;stroke-width:12;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter7296)" />
+       style="opacity:0;fill:none;stroke:#fbf7d3;stroke-width:12;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter7296)" />
     <path
        d="m 462.49999,391.78574 a 20.714285,33.516418 0 1 1 -41.42857,0 20.714285,33.516418 0 1 1 41.42857,0 z"
        transform="matrix(1.0344828,0,0,0.89344242,-21.030537,41.561674)"
        id="path7231"
-       style="fill:url(#radialGradient7450);fill-opacity:1;stroke:none" />
+       style="fill:url(#radialGradient7450);fill-opacity:0;stroke:none" />
     <path
        d="m 422.49578,368.30507 0.89439,0.70614 c 8.83169,0.30103 17.41075,0.26525 25.80997,-0.0103 l 0.44698,-0.38853"
        id="path7324"
@@ -261,20 +262,20 @@
        transform="scale(0.92836478,1.0771628)"
        id="text7190"
        xml:space="preserve"
-       style="font-size:20.08385086px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:semi-condensed;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans Semi-Condensed"><tspan
+       style="font-size:20.08385086px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:semi-condensed;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans Semi-Condensed"><tspan
          x="469.34506"
          y="99.67215"
-         id="tspan7194">D.C.</tspan><tspan
+         id="tspan7194">TURN</tspan><tspan
          x="469.34506"
          y="119.756"
-         id="tspan7198">ELEC.</tspan></text>
+         id="tspan7198">COORDINATOR</tspan></text>
     <text
        x="426.44009"
        y="362.39902"
        transform="scale(1.0221773,0.97830385)"
        id="text7200"
        xml:space="preserve"
-       style="font-size:17.40028954px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:semi-condensed;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans Semi-Condensed"><tspan
+       style="font-size:17.40028954px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:semi-condensed;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans Semi-Condensed"><tspan
          x="426.44009"
          y="362.39902"
          id="tspan7204">TURN COORDINATOR</tspan></text>

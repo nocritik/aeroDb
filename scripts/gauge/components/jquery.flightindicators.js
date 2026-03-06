@@ -61,8 +61,9 @@
                                         <div class="turn box"><img src="' + settings.img_directory + 'fi_tc_airplane.svg" class="box" alt="" />\n\
                                         </div><div class="mechanics box">\n\
                                         <img src="' + settings.img_directory + 'fi_circle.svg" class="box" alt="" />\n\
-                                        </div></div>');
+                                        </div><div class="slip-container"><div class="slip-ball"></div></div></div>');
 					_setTurn(settings.turn);
+					_setSlip(settings.slip || 0);
 				break;
 				case 'airspeed':
 					$(this).html('<div class="instrument airspeed">\n\
@@ -135,6 +136,20 @@
 			});
 		}
 
+		function _setSlip(slip){
+			if(slip > 1){slip = 1;}
+			else if(slip < -1){slip = -1;}
+			// Trajectoire horizontale : centré à 43.5% (ball width 13% → (100-13)/2)
+			var leftPct = 43.5 + slip * 30;
+			// Trajectoire courbe (parabole) : bille au bas du tube au centre, remonte vers les bords
+			// centre bille = topPct + 21.5% = centre tube : 30+21.5=51.5% repos, 14+21.5=35.5% bords
+			var topPct = 30 - slip * slip * 16;
+			placeholder.each(function(){
+				$(this).find('div.instrument.turn_coordinator div.slip-ball')
+					.css({ 'left': leftPct + '%', 'top': topPct + '%' });
+			});
+		}
+
 		function _setVario(vario){
 			if(vario > constants.vario_bound){vario = constants.vario_bound;}
 			else if(vario < -constants.vario_bound){vario = -constants.vario_bound;}
@@ -192,6 +207,7 @@
 		this.setPitch = function(pitch){_setPitch(pitch);}
 		this.setHeading = function(heading){_setHeading(heading);}
 		this.setTurn = function(turn){_setTurn(turn);}
+		this.setSlip = function(slip){_setSlip(slip);}
 		this.setVario = function(vario){_setVario(vario);}
 		this.setAirSpeed = function(speed){_setAirSpeed(speed);}
 		this.setAltitude = function(altitude){_setAltitude(altitude);}

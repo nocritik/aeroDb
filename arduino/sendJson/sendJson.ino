@@ -91,6 +91,8 @@ void loop() {
     // --- Coordinateur de virage / variomètre FI (valeurs physiques) ---
     float turnCoordinator = sineF(t,  8.0f, -20.0f, 20.0f);
     float variometer      = sineF(t, 14.0f,  -2.0f,  2.0f, 1.2f);
+    // Bille d'inclinomètre : -1.0 (gauche) à +1.0 (droite), 0 = centré (vol coordonné)
+    float slip            = sineF(t, 12.0f,  -1.0f,  1.0f, 2.1f);
 
     // --- Instruments canvas 0–150 ---
     int vario  = sineI(t, 14.0f,   0, 150, 1.2f);
@@ -134,9 +136,10 @@ void loop() {
     Serial.print(F(",\"altitude\":")); Serial.print(altitude);
     Serial.print(F(",\"pressure\":")); Serial.print(pressure, 1);
 
-    // Coordinateur / variomètre flight indicator
+    // Coordinateur / variomètre / bille flight indicator
     Serial.print(F(",\"turnCoordinator\":")); Serial.print(turnCoordinator, 1);
     Serial.print(F(",\"variometer\":")); Serial.print(variometer, 2);
+    Serial.print(F(",\"slip\":")); Serial.print(slip, 2);
 
     // Instruments canvas
     Serial.print(F(",\"vario\":")); Serial.print(vario);

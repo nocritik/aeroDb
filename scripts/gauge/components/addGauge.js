@@ -171,6 +171,7 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
         });
         document.addEventListener('flightdata', function(e) {
             if (e.detail.turnCoordinator !== undefined) indicator.setTurn(e.detail.turnCoordinator);
+            if (e.detail.slip !== undefined) indicator.setSlip(e.detail.slip);
         });
     }
     function heading() {
