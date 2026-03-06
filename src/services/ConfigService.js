@@ -20,6 +20,7 @@ export class ConfigService {
     static DEFAULT_CONFIG = {
         dataSource: 'simulation',  // 'wifi' | 'usb' | 'simulation'
         environment: 'dev',         // 'dev' | 'prod'
+        gaugeAnimationDuration: 1000, // ms — doit être > intervalle de données pour éviter les saccades
         wifi: {
             host: '192.168.4.1',
             port: 81
@@ -140,6 +141,7 @@ export class ConfigService {
                     case 'general':
                         if (key === 'DataSource') config.dataSource = value;
                         if (key === 'Environment') config.environment = value;
+                        if (key === 'GaugeAnimationDuration') config.gaugeAnimationDuration = parseInt(value, 10);
                         break;
                     case 'wifi':
                         if (key === 'Host') config.wifi.host = value;
@@ -264,11 +266,19 @@ export class ConfigService {
      * @private
      */
     static _syncToConfigINI(config) {
-        const iniContent = this._generateINIContent(config);
-        console.info('[ConfigService] Contenu config.ini à synchroniser:\n', iniContent);
-
-        // TODO: Implémenter l'écriture dans config.ini via un backend
-        // Pour l'instant, on peut copier manuellement ou utiliser l'API File System Access
+        fetch('/api/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        }).then(res => {
+            if (res.ok) {
+                console.info('[ConfigService] config.ini mis à jour via API');
+            } else {
+                console.warn('[ConfigService] Échec écriture config.ini (status ' + res.status + ')');
+            }
+        }).catch(err => {
+            console.warn('[ConfigService] Serveur non disponible, config.ini non mis à jour:', err.message);
+        });
     }
 
     // ---------- gauge configuration helpers (originally in scripts/gauge) ----------
@@ -356,6 +366,43 @@ export class ConfigService {
         }
     }
 
+    static async clearAllGaugesFromIni() {
+        try {
+            const res = await fetch('/api/gauges', { method: 'DELETE' });
+            if (!res.ok) {
+                throw new Error('status ' + res.status);
+            }
+        } catch (err) {
+            console.error('Error clearing gauges from config.ini', err);
+            // Fallback: télécharger un config.ini avec la liste vide
+            this._exportIniWithGauges([]);
+        }
+    }
+
+    static _exportIniWithGauges(gauges) {
+        fetch('../config/config.ini')
+            .then(r => r.text())
+            .then(text => {
+                const start = text.indexOf('StartGauges');
+                const end = text.indexOf('EndGauges');
+                let newText;
+                if (start !== -1 && end !== -1) {
+                    const before = text.slice(0, start + 'StartGauges'.length);
+                    const after = text.slice(end);
+                    newText = before + '\n' + JSON.stringify({ gauges }, null, 2) + '\n' + after;
+                } else {
+                    newText = text + '\n; ----- Gauges JSON fallback -----\n; StartGauges\n' +
+                        JSON.stringify({ gauges }, null, 2) + '\n; EndGauges\n';
+                }
+                const blob = new Blob([newText], { type: 'text/plain' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'config.ini';
+                a.click();
+            })
+            .catch(e => console.error('Unable to fetch config.ini for export', e));
+    }
+
     static exportIni() {
         // build gauges list from localStorage
         const gauges = [];
@@ -393,28 +440,6 @@ export class ConfigService {
             .catch(e => console.error('Unable to fetch config.ini for export', e));
     }
 
-    /**
-     * Génère le contenu du fichier config.ini
-     * @private
-     * @param {object} config
-     */
-    static _generateINIContent(config) {
-        return `; AeroDb Configuration File
-; Generated on ${new Date().toISOString()}
-
-[General]
-DataSource = ${config.dataSource}
-Environment = ${config.environment}
-
-[WiFi]
-Host = ${config.wifi.host}
-Port = ${config.wifi.port}
-
-[USB]
-Port = ${config.usb.port}
-BaudRate = ${config.usb.baudRate}
-`;
-    }
 
     /**
      * Scanne les ports USB pour détecter le dispositif envoyant du JSON

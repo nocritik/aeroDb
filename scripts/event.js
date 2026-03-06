@@ -127,6 +127,13 @@ $(function () {
     });
 });
 //****************************************************************
+//***********************boutton paramètres menu flottant *******************************
+$(function () {
+    $("#btn_param").click(function () {
+        $("#configModal").modal("show");
+    });
+});
+//****************************************************************
 // Code spécifique à la page de navigation (initMap n'existe que sur nav_page.html)
 $(document).ready(function () {
     // Vérifier si initMap existe (seulement sur la page de navigation)

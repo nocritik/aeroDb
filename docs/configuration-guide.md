@@ -11,9 +11,11 @@ AeroDb dispose maintenant d'un système de configuration centralisé permettant 
 
 ### Via l'interface web
 
-1. Ouvrez l'application AeroDb (`index.html`)
-2. Cliquez sur le bouton **CONFIGURATION** dans le menu principal
-3. Une modale s'ouvre avec tous les paramètres
+La modale de configuration est accessible depuis toutes les pages :
+
+- **Page d'accueil** (`index.html`) : bouton **CONFIGURATION** dans le menu principal
+- **Page jauges** (`gauge_page.html`) : bouton engrenage (icône `fa-cogs`) dans le menu flottant
+- **Page navigation** (`nav_page.html`) : bouton engrenage dans le menu flottant
 
 ### Paramètres disponibles
 
@@ -144,10 +146,12 @@ src/
 
 ## Réinitialisation
 
-Pour revenir aux paramètres par défaut :
+### Réinitialiser la configuration
+
+Pour revenir aux paramètres par défaut (environnement, source de données, WiFi, USB) :
 
 1. Ouvrez la modale de configuration
-2. Cliquez sur **Réinitialiser** (bouton orange)
+2. Cliquez sur **Réinitialiser** (bouton orange, en bas à gauche)
 3. Confirmez l'action
 
 Paramètres par défaut :
@@ -155,6 +159,21 @@ Paramètres par défaut :
 - Source : Simulation
 - WiFi : 192.168.4.1:81
 - USB : COM3 à 115200 baud
+
+### Nettoyer les jauges
+
+Pour supprimer tous les instruments configurés :
+
+1. Ouvrez la modale de configuration
+2. Cliquez sur **Nettoyer les jauges** (bouton rouge, en bas à gauche)
+3. Confirmez l'action
+
+Cette action :
+- Supprime toutes les entrées numériques du `localStorage` (configs de jauges)
+- Met à jour `config.ini` via l'API serveur (ou propose un téléchargement si le serveur est absent)
+- Sauvegarde automatiquement la configuration sans nécessiter de clic sur "Enregistrer"
+
+> La configuration générale (`aero_config`) est préservée.
 
 ## Stockage de la configuration
 
@@ -288,14 +307,15 @@ La configuration est sauvegardée à deux endroits :
 
 ### Le simulateur ne démarre pas
 
-- Vérifiez que l'environnement est en "Développement"
-- Vérifiez que la source est "Simulation"
+- Vérifiez que la source de données est "Simulation"
+- Vérifiez que l'environnement est en "Développement" (le panneau de contrôle est masqué en prod)
 - Rechargez la page
 
 ### Le panneau WiFi est invisible
 
 - Vérifiez que l'environnement est en "Développement"
-- En mode Production, les panneaux sont masqués (comportement normal)
+- En mode Production, les panneaux flottants sont masqués (comportement normal)
+- La configuration WiFi reste accessible via la modale quel que soit l'environnement
 
 ### La connexion WiFi échoue
 
@@ -304,37 +324,22 @@ La configuration est sauvegardée à deux endroits :
 - Assurez-vous d'être connecté au bon réseau WiFi
 - Consultez la console du navigateur (F12)
 
+### Une popup de connexion USB apparaît en mode Simulation ou WiFi
+
+L'auto-connexion USB est conditionnée uniquement par la source de données.
+Elle ne se déclenche **que si `DataSource = usb`**, quel que soit l'environnement.
+
+Si la popup apparaît malgré `DataSource = simulation` ou `wifi` :
+- Vérifiez que la configuration est bien sauvegardée dans le `localStorage` (clé `aero_config`)
+- Ouvrez la modale, sélectionnez la bonne source, cliquez sur **Enregistrer**
+- Rechargez la page
+
 ### Les paramètres ne sont pas sauvegardés
 
-- VInitialiser la configuration au démarrage (charge config.ini si nécessaire)
-await ConfigService.initialize();
+- Vérifiez que le serveur Node est démarré (`npm start`) pour la persistance dans `config.ini`
+- Sans serveur, les modifications sont enregistrées uniquement dans `localStorage`
+- En cas de perte, un fichier `config.ini` à jour est proposé en téléchargement
 
-// Récupérer la configuration complète
-const config = ConfigService.getConfig();
-
-// Vérifier le mode
-if (ConfigService.isDevMode()) {
-    console.log('Mode développement');
-}
-
-// Récupérer la source de données
-const source = ConfigService.getDataSource(); // 'wifi', 'usb', 'simulation'
-
-// Modifier la configuration
-ConfigService.setEnvironment('prod');
-ConfigService.setDataSource('wifi');
-ConfigService.setWifiConfig('192.168.1.100', 81);
-
-// Charger la configuration depuis un fichier INI
-const config = await ConfigService.loadConfigFromFile();
-
-// Parser un contenu INI
-const configString = `
-[General]
-Environment = prod
-DataSource = wifi
-`;
-const parsedConfig = ConfigService.parseINI(configString
 Pour utiliser la configuration dans votre code :
 
 ```javascript
@@ -371,9 +376,14 @@ document.addEventListener('configchange', (e) => {
 
 ### Fichiers modifiés
 - `index.html` : Ajout du bouton et de la modale de configuration
-- `partial/gauge_page.html` : Intégration de la configuration
+- `partial/gauge_page.html` : Modale de configuration + bouton engrenage (`btn_param`)
+- `partial/nav_page.html` : Modale de configuration + bouton engrenage (`btn_param`)
+- `scripts/event.js` : Handler `btn_param` → ouvre `#configModal`
+- `scripts/configManager.js` : Gestion des boutons Réinitialiser, Nettoyer les jauges, Enregistrer
+- `src/utils/usbReader.js` : Auto-connexion conditionnée par `dataSource === 'usb'` uniquement
 - `src/utils/usbSimulator.js` : Respect du mode prod/dev
 - `src/utils/wifiReader.js` : Respect du mode prod/dev
+- `server.js` : Endpoint `DELETE /api/gauges` (suppression de toutes les jauges)
 - `config/config.ini` : Structure de configuration mise à jour
 
 ## Évolutions futures possibles
@@ -386,6 +396,6 @@ document.addEventListener('configchange', (e) => {
 
 ---
 
-**Auteur** : Système de configuration AeroDb  
-**Version** : 1.0  
-**Date** : 2026-03-03
+**Auteur** : Système de configuration AeroDb
+**Version** : 1.1
+**Date** : 2026-03-06

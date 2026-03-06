@@ -244,10 +244,28 @@ function _hideConnectionBanner() {
  */
 async function _tryAutoConnect() {
 
+    // ── Vérification config : ne pas tenter la connexion USB en mode dev
+    //    ou si la source de données n'est pas 'usb'
+    var baudRate = USB_BAUD_RATE;
+    try {
+        var storedConfig = localStorage.getItem('aero_config');
+        var cfg = storedConfig ? JSON.parse(storedConfig) : { dataSource: 'simulation' };
+        if (cfg.dataSource !== 'usb') {
+            console.info('[USB] Auto-connexion ignorée (dataSource=' + cfg.dataSource + ')');
+            return;
+        }
+        if (cfg.usb && cfg.usb.baudRate) {
+            baudRate = cfg.usb.baudRate;
+        }
+    } catch (e) {
+        console.warn('[USB] Impossible de lire la config, auto-connexion annulée par sécurité.', e);
+        return;
+    }
+
     // ── Android Capacitor ───────────────────────────────────────────────────
     if (window.androidSerialBridge) {
         console.info('[USB-Android] Tentative d\'auto-connexion USB…');
-        await usbReader.connect(USB_BAUD_RATE);
+        await usbReader.connect(baudRate);
         return;
     }
 
@@ -259,7 +277,7 @@ async function _tryAutoConnect() {
 
     var ports = await navigator.serial.getPorts();
     if (ports.length > 0) {
-        var success = await usbReader.connectToExistingPort(ports[0], USB_BAUD_RATE);
+        var success = await usbReader.connectToExistingPort(ports[0], baudRate);
         if (success) return;
     }
 
@@ -268,7 +286,7 @@ async function _tryAutoConnect() {
         document.removeEventListener('click',   _handler, true);
         document.removeEventListener('keydown', _handler, true);
         _hideConnectionBanner();
-        await usbReader.connect(USB_BAUD_RATE);
+        await usbReader.connect(baudRate);
     };
     document.addEventListener('click',   _handler, true);
     document.addEventListener('keydown', _handler, true);

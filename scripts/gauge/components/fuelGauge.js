@@ -86,7 +86,7 @@ export function gaugeFuel(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,affP
             },
             animation : {
                 delay : 25,
-                duration: 1000,
+                duration: GAUGE_ANIMATION_DURATION,
                 //fn : 'bounce'// rebon de l'eguille
                 fn: 'linear'
             }

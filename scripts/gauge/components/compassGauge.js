@@ -94,7 +94,7 @@ export function compass(canvasId){
             },
             animation: {
                 delay: 25,
-                duration: 1000,
+                duration: GAUGE_ANIMATION_DURATION,
                 fn: 'linear'
             },
             updateValueOnAnimation: true

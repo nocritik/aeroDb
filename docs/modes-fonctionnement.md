@@ -116,10 +116,14 @@ une seule fois par périphérique.
 ### Sketch de test — arduino/sendJson/sendJson.ino
 
 Envoi en boucle d'une trame JSON complète sans capteur réel :
-- Fréquence : 2 Hz (configurable via `SEND_INTERVAL_MS`)
+- Fréquence : 5 Hz — `SEND_INTERVAL_MS = 200` (configurable)
 - Baud rate : 115 200 (idem `config.ini → BaudRate`)
 - Tous les champs (`roll`, `pitch`, `heading`, `speed`, `rpm`, `cht*`, `egt*`, `fuel*`…)
 - Compatible Arduino Nano/Uno et ESP32
+
+> **Recommandation matérielle :** Arduino Nano suffisant pour envoyer du JSON.
+> Pour un EFIS avec capteurs réels (IMU + GPS + pression), préférer un **ESP32**
+> (WiFi natif, 520 KB RAM, dual-core 240 MHz, compatible avec le sketch actuel).
 
 ---
 
@@ -143,7 +147,7 @@ CustomEvent('flightdata', { detail: { roll, pitch, heading, speed, … } })
       ├── fuelGauge        → gauge.setValue(e.detail.fuel)
       ├── variometreGauge  → gauge.setValue(e.detail.vario)
       └── addGauge.js      → setRoll / setPitch / setHeading / setAltitude / setVario
-                             (flight indicators — setInterval 100 ms)
+                             (flight indicators — événement flightdata direct)
 ```
 
 ---

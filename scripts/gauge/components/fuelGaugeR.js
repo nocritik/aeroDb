@@ -67,7 +67,7 @@ export function fuelGaugeR(canvasId, tabGrad, unit, gradMin, gradMax, affPosVert
         },
         valueBox:  { visible: false },  // afficheur natif désactivé (valeur inversée)
         valueText: { visible: true  },
-        animation: { delay: 25, duration: 1000, fn: 'linear' },
+        animation: { delay: 25, duration: GAUGE_ANIMATION_DURATION, fn: 'linear' },
         updateValueOnAnimation: true
     });
 

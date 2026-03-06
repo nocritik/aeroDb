@@ -85,7 +85,7 @@ export function variometreGauge(canvasId, tabGrad,unit,gradMin,gradMax,affPosVer
             },
             animation : {
                 delay : 25,
-                duration: 1000,
+                duration: GAUGE_ANIMATION_DURATION,
                 //fn : 'bounce'// rebon de l'eguille
                 fn: 'linear'
             }

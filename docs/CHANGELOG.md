@@ -2,6 +2,34 @@
 
 Toutes les modifications notables du projet sont documentées dans ce fichier.
 
+## [1.4.0] - 2026-03-06
+
+### Fluidité des instruments de vol
+
+#### Canvas gauges (jauges à aiguille)
+- `GaugeAnimationDuration` ajouté dans `config.ini` (défaut : 1000 ms)
+- Règle : durée animation > intervalle données pour éviter les saccades
+- `updateValueOnAnimation: true` déjà présent — l'aiguille ne s'arrête jamais entre deux trames
+
+#### Flight indicators (instruments image — horizon, compas, altimètre…)
+- `addGauge.js` : remplacement des `setInterval(100ms)` par des listeners `flightdata` directs
+- `flightindicators.css` : ajout `transition: 250ms linear` sur tous les éléments rotatifs
+- Règle : `transition CSS = intervalle Arduino × 1.25`
+
+#### Arduino sketch
+- `SEND_INTERVAL_MS` : 500 ms → 200 ms (2 Hz → 5 Hz)
+- Arduino Nano suffisant ; ESP32 recommandé pour un EFIS avec capteurs réels
+
+### Fichiers modifiés
+- `config/config.ini` — `GaugeAnimationDuration = 1000`
+- `src/services/ConfigService.js` — default `gaugeAnimationDuration: 1000`
+- `partial/gauge_page.html` — fallback `|| 1000`
+- `scripts/gauge/components/addGauge.js` — flight indicators sur `flightdata`
+- `css/flightindicators.css` — `transition: 250ms linear` sur éléments mobiles
+- `arduino/sendJson/sendJson.ino` — `SEND_INTERVAL_MS = 200`
+
+---
+
 ## [1.3.0] - 2026-03-05
 
 ### ✨ Nouvelles fonctionnalités

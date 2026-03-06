@@ -32,7 +32,7 @@
 // ---------------------------------------------------------------------------
 
 #define BAUD_RATE         115200
-#define SEND_INTERVAL_MS  500     // Intervalle entre trames (ms). 500 = 2 Hz, 200 = 5 Hz.
+#define SEND_INTERVAL_MS  200     // Intervalle entre trames (ms). 400 = 2.5 Hz, 200 = 5 Hz.
 
 // ---------------------------------------------------------------------------
 //  Helpers sinusoïdaux

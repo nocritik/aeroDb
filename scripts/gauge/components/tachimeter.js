@@ -92,7 +92,7 @@ export function tachimeter(canvasId, tabGrad,unit,gradMin,gradMax,affPosVert,aff
             },
             animation: {
                 delay: 10,
-                duration: 1500,
+                duration: GAUGE_ANIMATION_DURATION,
                 fn: 'linear'
             },
             updateValueOnAnimation: true

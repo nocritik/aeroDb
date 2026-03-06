@@ -151,86 +151,74 @@ export function addInstrument(gaugeId, gaugeType, tabGrad, unit, gradMin, gradMa
     // Instruments de vol utilisant jQuery Flight Indicators
     function attitude() {
         var spanId = createSpan(gaugeType);
-        // Initialiser l'indicateur d'attitude (horizon artificiel)
         var indicator = $.flightIndicator('#' + spanId, 'attitude', {
             size: 200,
             roll: 0,
             pitch: 0,
             img_directory: '../img/'
         });
-        // Animation avec les données simulées
-        setInterval(function () {
-            indicator.setRoll(dataAttitudeRoll());
-            indicator.setPitch(dataAttitudePitch());
-        }, 100);
+        document.addEventListener('flightdata', function(e) {
+            if (e.detail.roll !== undefined)  indicator.setRoll(e.detail.roll);
+            if (e.detail.pitch !== undefined) indicator.setPitch(e.detail.pitch);
+        });
     }
     function turn_coordinator() {
         var spanId = createSpan(gaugeType);
-        // Initialiser l'indicateur de virage (bille)
         var indicator = $.flightIndicator('#' + spanId, 'turn_coordinator', {
             size: 200,
             turn: 0,
             img_directory: '../img/'
         });
-        // Animation avec les données simulées
-        setInterval(function () {
-            indicator.setTurn(dataTurnCoordinator());
-        }, 100);
+        document.addEventListener('flightdata', function(e) {
+            if (e.detail.turnCoordinator !== undefined) indicator.setTurn(e.detail.turnCoordinator);
+        });
     }
     function heading() {
         var spanId = createSpan(gaugeType);
-        // Initialiser l'indicateur de cap (compas)
         var indicator = $.flightIndicator('#' + spanId, 'heading', {
             size: 200,
             heading: 0,
             img_directory: '../img/'
         });
 
-        // Créer l'afficheur numérique au centre
         var valueDisplay = document.createElement('div');
         valueDisplay.className = 'heading-value-display';
         valueDisplay.textContent = '0';
-        // L'ajouter à l'instrument heading
         var instrumentDiv = document.querySelector('#' + spanId + ' .instrument.heading');
         if (instrumentDiv) {
             instrumentDiv.appendChild(valueDisplay);
         }
 
-        // Animation avec les données simulées
-        setInterval(function () {
-            var headingValue = dataHeading();
-            indicator.setHeading(headingValue);
-            // Mettre à jour l'afficheur numérique
-            valueDisplay.textContent = Math.round(headingValue);
-        }, 100);
+        document.addEventListener('flightdata', function(e) {
+            if (e.detail.heading !== undefined) {
+                indicator.setHeading(e.detail.heading);
+                valueDisplay.textContent = Math.round(e.detail.heading);
+            }
+        });
     }
     function altimeter() {
         var spanId = createSpan(gaugeType);
-        // Initialiser l'altimètre
         var indicator = $.flightIndicator('#' + spanId, 'altimeter', {
             size: 200,
             altitude: 0,
             pressure: 1013,
             img_directory: '../img/'
         });
-        // Animation avec les données simulées
-        setInterval(function () {
-            indicator.setAltitude(dataAltitude());
-            indicator.setPressure(dataPressure());
-        }, 100);
+        document.addEventListener('flightdata', function(e) {
+            if (e.detail.altitude !== undefined) indicator.setAltitude(e.detail.altitude);
+            if (e.detail.pressure !== undefined) indicator.setPressure(e.detail.pressure);
+        });
     }
     function variometer() {
         var spanId = createSpan(gaugeType);
-        // Initialiser le variomètre
         var indicator = $.flightIndicator('#' + spanId, 'variometer', {
             size: 200,
             vario: 0,
             img_directory: '../img/'
         });
-        // Animation avec les données simulées
-        setInterval(function () {
-            indicator.setVario(dataVariometerFI());
-        }, 100);
+        document.addEventListener('flightdata', function(e) {
+            if (e.detail.variometer !== undefined) indicator.setVario(e.detail.variometer);
+        });
     }
     function gaugeVariometer() {
         var canvasId = createCanvas(gaugeType);

@@ -133,6 +133,25 @@
     /***************************** *** ****************************/
 
 
+    /* **************************** config modal footer **********************/
+    .config-modal-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;          /* ← espace intérieur du footer */
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .config-modal-footer__group {
+        display: flex;
+        gap: 20px;                    /* ← espacement entre les 2 boutons d'un groupe */
+    }
+
+    .config-modal-footer .btn {
+        min-width: 130px;            /* ← largeur minimale de chaque bouton */
+        padding: 15px 17px;           /* ← padding interne des boutons */
+        font-size: 13px;             /* ← taille du texte */
+    }
     /* **************************** gauge css **********************/
     a{
         text-decoration: none!important;

@@ -85,7 +85,7 @@ export function tempEGTGauge(canvasId, tabGrad, unit, gradMin, gradMax, affPosVe
         },
         animation: {
             delay: 25,
-            duration: 1000,
+            duration: GAUGE_ANIMATION_DURATION,
             //fn : 'bounce'// rebon de l'eguille
             fn: 'linear'
         }

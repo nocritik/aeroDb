@@ -57,6 +57,12 @@ class ConfigManager {
             resetBtn.addEventListener('click', () => this._resetConfiguration());
         }
 
+        // Bouton de nettoyage des jauges
+        const clearGaugesBtn = document.getElementById('btnClearGauges');
+        if (clearGaugesBtn) {
+            clearGaugesBtn.addEventListener('click', () => this._clearGauges());
+        }
+
         // Bouton de scan USB
         const scanUSBBtn = document.getElementById('btnScanUSB');
         if (scanUSBBtn) {
@@ -233,6 +239,28 @@ class ConfigManager {
         } else {
             this._showErrorMessage('Erreur lors de la sauvegarde de la configuration');
         }
+    }
+
+    /**
+     * Supprime toutes les configurations de jauges du localStorage
+     * @private
+     */
+    _clearGauges() {
+        if (!confirm('Supprimer tous les instruments ? Cette action est irréversible.')) return;
+
+        const numericKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!isNaN(parseInt(key, 10)) && key === String(parseInt(key, 10))) {
+                numericKeys.push(key);
+            }
+        }
+
+        numericKeys.forEach(key => localStorage.removeItem(key));
+
+        ConfigService.clearAllGaugesFromIni().then(() => {
+            this._saveConfiguration();
+        });
     }
 
     /**

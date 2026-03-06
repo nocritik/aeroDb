@@ -52,6 +52,36 @@ function writeGauges(gauges) {
     fs.writeFileSync(INI_PATH, before + newJson + after, 'utf8');
 }
 
+// Helper to update a key=value line in a specific INI section
+function updateIniValue(content, section, key, value) {
+    const sectionRegex = new RegExp(`(\\[${section}\\][^\\[]*?)${key}\\s*=\\s*[^\\n]*`, 's');
+    if (sectionRegex.test(content)) {
+        return content.replace(sectionRegex, `$1${key} = ${value}`);
+    }
+    return content;
+}
+
+app.put('/api/config', (req, res) => {
+    console.log('[API] PUT /api/config', req.body);
+    const cfg = req.body;
+    if (!cfg) return res.status(400).send('Config object required');
+    try {
+        let raw = fs.readFileSync(INI_PATH, 'utf8');
+        if (cfg.environment !== undefined)   raw = updateIniValue(raw, 'General', 'Environment', cfg.environment);
+        if (cfg.dataSource !== undefined)    raw = updateIniValue(raw, 'General', 'DataSource',  cfg.dataSource);
+        if (cfg.wifi?.host !== undefined)    raw = updateIniValue(raw, 'WiFi',    'Host',         cfg.wifi.host);
+        if (cfg.wifi?.port !== undefined)    raw = updateIniValue(raw, 'WiFi',    'Port',         cfg.wifi.port);
+        if (cfg.usb?.port !== undefined)     raw = updateIniValue(raw, 'USB',     'Port',         cfg.usb.port);
+        if (cfg.usb?.baudRate !== undefined)           raw = updateIniValue(raw, 'USB',     'BaudRate',             cfg.usb.baudRate);
+        if (cfg.gaugeAnimationDuration !== undefined)  raw = updateIniValue(raw, 'General', 'GaugeAnimationDuration', cfg.gaugeAnimationDuration);
+        fs.writeFileSync(INI_PATH, raw, 'utf8');
+        res.send();
+    } catch (err) {
+        console.error('[API] PUT /api/config error:', err);
+        res.status(500).send(err.message);
+    }
+});
+
 app.get('/api/gauges', (req, res) => {
     console.log('[API] GET /api/gauges');
     res.json(readGauges());
@@ -85,6 +115,13 @@ app.put('/api/gauges/:id', (req, res) => {
     }
     gauges[idx] = gauge;
     writeGauges(gauges);
+    res.send();
+});
+
+
+app.delete('/api/gauges', (req, res) => {
+    console.log('[API] DELETE /api/gauges (all)');
+    writeGauges([]);
     res.send();
 });
 
