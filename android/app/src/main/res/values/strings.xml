@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">aeroDb</string>
-    <string name="title_activity_main">aeroDb</string>
-    <string name="package_name">com.example.aerodb</string>
-    <string name="custom_url_scheme">com.example.aerodb</string>
-</resources>
