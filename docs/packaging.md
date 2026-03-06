@@ -220,6 +220,7 @@ public class MainActivity extends BridgeActivity {
 Avant de compiler, synchroniser les fichiers web :
 ```bash
 npm run sync-www      # copie les sources dans www/
+npx cap add android   #Ajoute la plateforme android
 npx cap sync android  # applique les plugins Capacitor
 npx cap open android  # ouvre Android Studio
 ```

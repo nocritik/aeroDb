@@ -26,7 +26,7 @@
                 <a class="btn btn-default btn-block" href="partial/nav_page.html" role="button">NAVIGATION<span class="fa fa-map pull-left"></span></a>
                 <a class="btn btn-default btn-block" href="#" data-toggle="modal" data-target="#configModal" role="button">CONFIGURATION<span class="fa fa-cogs pull-left"></span></a>
                 <a class="btn btn-default btn-block" href="#" role="button">MISE A JOUR<span class="fa fa-download pull-left"></span></a>
-                <a class="btn btn-default btn-block" href="#" role="button">QUITTER<span class="fa fa-power-off pull-left"></span></a>        
+                <a class="btn btn-default btn-block" href="#" role="button" onclick="quitApp(); return false;">QUITTER<span class="fa fa-power-off pull-left"></span></a>
             </div>
         </div> 
     </div>
@@ -189,6 +189,48 @@
     </div>
       
     <script src="scripts/event.js" type="text/javascript"></script>
+    <script>
+        function quitApp() {
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                // Android APK Capacitor → ferme l'application
+                Capacitor.Plugins.App.exitApp();
+                return;
+            }
+            // PWA standalone (installée) : window.close() fonctionne
+            var isPwa = window.matchMedia('(display-mode: standalone)').matches
+                     || window.navigator.standalone === true;
+            if (isPwa) {
+                window.close();
+                return;
+            }
+            // Navigateur classique : impossible de fermer un onglet ouvert par l'utilisateur
+            // → afficher une page de fin avec instructions
+            document.open();
+            document.write(
+                '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+                '<style>' +
+                'body{margin:0;display:flex;align-items:center;justify-content:center;' +
+                'height:100vh;background:#111;color:#ccc;font-family:sans-serif;text-align:center;}' +
+                'kbd{background:#333;border:1px solid #555;border-radius:4px;padding:2px 8px;font-size:14px;}' +
+                '.tip{margin-top:24px;padding:14px 20px;background:#1a2a1a;border:1px solid #2a4a2a;' +
+                'border-radius:8px;font-size:13px;color:#8a8;max-width:400px;text-align:left;line-height:1.6;}' +
+                '.tip b{color:#aca;}' +
+                '</style>' +
+                '</head><body>' +
+                '<div>' +
+                '<p style="font-size:22px;margin-bottom:12px;">AeroDb terminé</p>' +
+                '<p style="font-size:15px;color:#888;">Fermez cet onglet&nbsp;: <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>W</kbd></p>' +
+                '<div class="tip">' +
+                '<b>Conseil :</b> Pour fermer AeroDb via le bouton QUITTER,<br>' +
+                'installez-le comme application&nbsp;:<br>' +
+                'Chrome → icône <b>⊕</b> dans la barre d\'adresse → <b>Installer AeroDb</b><br>' +
+                'Lancez ensuite depuis le bureau.' +
+                '</div>' +
+                '</div></body></html>'
+            );
+            document.close();
+        }
+    </script>
     <script type="module">
         // Charger la configuration au démarrage
         import { ConfigService } from './src/services/ConfigService.js';
