@@ -2,6 +2,49 @@
 
 Toutes les modifications notables du projet sont documentées dans ce fichier.
 
+## [1.5.0] - 2026-03-06
+
+### ✨ Bille d'inclinomètre (slip/skid indicator) — coordinateur de virage
+
+#### Nouveau champ JSON : `slip`
+- Champ `slip` ajouté au protocole (normalisé −1 … +1, 0 = centré)
+- `arduino/sendJson/sendJson.ino` : génération sinusoïdale `slip` (phase 2.1)
+- `src/utils/usbSimulator.js` : champ `slip` ajouté dans `_updateFrame()`
+- `docs/usb-json-protocol.md` : tableau et exemple JSON mis à jour
+
+#### Implémentation côté instruments
+- `scripts/gauge/components/jquery.flightindicators.js`
+  - Template HTML `turn_coordinator` : ajout `<div class="slip-container"><div class="slip-ball"></div></div>`
+  - Fonction privée `_setSlip(slip)` : déplace la bille CSS selon la valeur slip
+  - Trajectoire parabolique : `topPct = 30 - slip² × 16` (suit la courbe géométrique réelle du tube SVG)
+  - Méthode publique `indicator.setSlip(slip)` exposée
+  - Initialisation : `_setSlip(settings.slip || 0)`
+- `scripts/gauge/components/addGauge.js`
+  - Listener `flightdata` du `turn_coordinator` : appel `indicator.setSlip(e.detail.slip)` si présent
+
+#### CSS — container transparent (approche propre)
+- `css/flightindicators.css`
+  - `div.slip-container` : fond **transparent**, aligné sur le tube SVG (top:57%, left:28%, width:45%, height:14%, border-radius:50%, overflow:hidden)
+  - `div.slip-ball` : sphère CSS animée (gradient radial noir/gris, transition 250ms)
+  - Position repos : top:30% → centre bille = 51.5% = centre géométrique du tube SVG
+
+#### Correction SVG `img/turn_coordinator.svg`
+- Ajout `viewBox="0 0 537.94183 539.90863"` (manquant — rendu incorrect dans le navigateur)
+- Correction `preserveAspectRatio="xMidYMid meet"` (valeur invalide `X200Y200` corrigée)
+- Bille statique masquée (`fill-opacity:0`, `opacity:0`) — remplacée par la bille CSS animée
+- Textes superflus masqués (`fill:none`) pour correspondre au visuel de référence
+
+### Fichiers modifiés
+- `arduino/sendJson/sendJson.ino` — ajout champ `slip`
+- `src/utils/usbSimulator.js` — ajout champ `slip`
+- `scripts/gauge/components/jquery.flightindicators.js` — `setSlip()`, template HTML, trajectoire parabolique
+- `scripts/gauge/components/addGauge.js` — listener `slip` dans `turn_coordinator()`
+- `css/flightindicators.css` — container transparent + bille animée
+- `img/turn_coordinator.svg` — viewBox, bille statique masquée, textes nettoyés
+- `docs/usb-json-protocol.md` — champ `slip` documenté
+
+---
+
 ## [1.4.0] - 2026-03-06
 
 ### Fluidité des instruments de vol
